@@ -14,34 +14,60 @@ async def send_message_to_queue(message, user, project): # Añade un mensaje a l
     rabbit_controller.send_message(body.encode(), f"messages_team_{message.team_id}")
     return content_message_broker
 
-async def save_in_db_team_message(message, user): # Guarda un mensaje en la base de datos
-    cursor = db.conn.cursor()
 
-    check_user_query = f"""
+async def send_message_general_to_queue(message, user, project): # Añade un mensaje a la cola 
+    content_message_broker = {
+        "message_text": message.message_content,
+        "user_name": user['app_user_name'],
+        "user_email": user['app_user_email'],
+        "message_date": datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
+    }
+    body = json.dumps(content_message_broker)
+    rabbit_controller.send_message(body.encode(), f"messages_project_{project['project_id']}")
+    return content_message_broker
+
+async def save_in_db_team_message(message, user):
+    cursor = db.conn.cursor()
+    check_user_query = """
         SELECT * FROM app_user_team WHERE app_user_id = %s AND team_id = %s;
     """
-    check_user_query_parameters = ( 
-                        user['app_user_id'],
-                        message.team_id
-    )       
-    cursor.execute(check_user_query,check_user_query_parameters)
+    check_user_query_parameters = (user['app_user_id'], message.team_id)       
+    cursor.execute(check_user_query, check_user_query_parameters)
     user_team_id = cursor.fetchone()[0]
-    if user_team_id is not None:    
-        
-        message_in_db = f"""
-            INSERT INTO chat_message (message_date, message_content, message_state_id, message_type_id, app_user_team_id)
-            VALUES (%s, %s, %s, %s, %s);
-        """
-        message_in_db_query_parameters = ( 
-                                datetime.now(),
-                                message.message_content,
-                                2,
-                                3,
-                                user_team_id 
-                                )
 
-        cursor.execute(message_in_db,message_in_db_query_parameters)
+    if user_team_id is not None:    
+        message_in_db = """
+            INSERT INTO chat_message (message_date, message_content, sent_by, message_state_id, message_type_id, app_user_team_id)
+            VALUES (%s, %s, %s, %s, %s, %s);
+        """ 
+        message_in_db_query_parameters = (
+            datetime.now(),
+            message.message_content,
+            user['app_user_id'],
+            2,
+            3,
+            user_team_id
+        )
+
+        cursor.execute(message_in_db, message_in_db_query_parameters)
         db.conn.commit()
+        print("saved in db")
+
+async def save_in_db_team_message_general(message, user):
+    cursor = db.conn.cursor()
+    message_in_db = f"""
+        INSERT INTO chat_message (message_date, message_content, sent_by, message_state_id, message_type_id)
+        VALUES (%s, %s, %s, %s, %s);
+    """
+    message_in_db_query_parameters = ( 
+                            datetime.now(),
+                            message.message_content,
+                            user['app_user_id'],
+                            2,
+                            1,
+                            )
+    cursor.execute(message_in_db,message_in_db_query_parameters)
+    db.conn.commit()
         
     
 async def get_team_messages(team_id): # Obtiene los mensajes de un equipo

@@ -79,11 +79,13 @@ CREATE TABLE IF NOT EXISTS chat_message(
     message_date DATE,
     message_content VARCHAR(255),
     
+    sent_by INT,
     message_state_id INT,
     message_type_id INT,
-    app_user_team_id INT,
+    app_user_team_id INT NULL,
     user_to_send INT NULL,
 
+    FOREIGN KEY (sent_by) REFERENCES app_user(app_user_id),
     FOREIGN KEY (message_state_id) REFERENCES message_state(message_state_id),
     FOREIGN KEY (message_type_id) REFERENCES message_type(message_type_id),
     FOREIGN KEY (app_user_team_id) REFERENCES app_user_team(app_user_team_id),
@@ -120,3 +122,4 @@ CREATE TABLE IF NOT EXISTS log(
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id),
     FOREIGN KEY (action_id) REFERENCES log_action(action_id)
 );
+
