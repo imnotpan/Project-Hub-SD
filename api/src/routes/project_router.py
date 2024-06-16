@@ -38,10 +38,7 @@ async def add_owner(
     project = await project_services.get_project_current(add_owner.project_auth_key)
     isOwner = await project_services.project_owner_verify(project['project_id'],user_data['app_user_id'])
     if not isOwner:
-        raise HTTPException(
-            status_code=401,
-            detail="You aren't leader or Owner",
-        )
+        return {401, f"You aren't leader or owner"}
     user_data = await auth_services.get_user_by_email(add_owner.user_email)
     return await project_services.add_co_owners(project["project_id"], user_data['app_user_id'])
 
@@ -55,10 +52,7 @@ async def delete_owner(
     to_delete_user = await auth_services.get_user_by_email(add_owner.user_email)
     isOwner = await project_services.project_main_owner_verify(user_data['app_user_id'], to_delete_user['app_user_id'])
     if not isOwner:
-        raise HTTPException(
-            status_code=401,
-            detail="You aren't leader or Owner",
-        )
+        return {401, f"You aren't leader or owner"}
     return await project_services.delete_co_owner(project["project_id"], to_delete_user['app_user_id'])
 
 @project_router.get( # Ruta para la obtención de equipos de un proyecto

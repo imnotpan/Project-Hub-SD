@@ -200,7 +200,6 @@ async def verify_team_leader(user_id, team_id):
     cursor.execute(check_user_query, check_user_query_parameters)
     user_team_id = cursor.fetchone()
     if user_team_id is None:
-        raise HTTPException(
-            status_code=401,
-            detail="You aren't leader or Owner",
-        )
+        return False
+    else:
+        return True
