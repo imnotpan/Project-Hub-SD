@@ -101,10 +101,7 @@ async def get_tasks_messages(
     await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
     isLeader =  team_services.verify_team_leader(user["app_user_id"], team_data.team_id)
     if not isLeader:
-        raise HTTPException(
-            status_code=401,
-            detail="You aren't leader ",
-        )
+        return {401, f"You aren't leader"}
     user_to_add_data = await auth_services.get_user_by_email(user_to_add.user_email) 
     await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 1)
     return {"add at leader"}
@@ -120,10 +117,7 @@ async def get_tasks_messages(
     await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
     isLeader =  team_services.verify_team_leader(user["app_user_id"], team_data.team_id)
     if not isLeader:
-        raise HTTPException(
-            status_code=401,
-            detail="You aren't leader ",
-        )
+        return {401, f"You aren't leader"}
     user_to_add_data = await auth_services.get_user_by_email(user_to_delete.user_email) 
     await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 0)
     return {"deleted leader"}
