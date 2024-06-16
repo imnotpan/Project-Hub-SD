@@ -42,15 +42,30 @@ CREATE TABLE IF NOT EXISTS team(
     FOREIGN KEY (project_id) REFERENCES project(project_id)
 );
 
+CREATE TABLE IF NOT EXISTS user_type(
+    user_type_id SERIAL PRIMARY KEY,
+    user_type VARCHAR(255)
+)
+
+INSERT INTO user_type(user_type)
+VALUES
+    ('Normal'),
+    ('Owner'),
+    ('Leader');
+
 CREATE TABLE IF NOT EXISTS app_user_team(
     app_user_team_id SERIAL PRIMARY KEY,
     team_id INT,
     app_user_id INT,
     user_status VARCHAR(50) NOT NULL DEFAULT 'inactive',
+    user_type INT,
 
+    FOREIGN KEY (user_type) REFERENCES user_type(user_type_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
 );
+
+
 
 CREATE TABLE IF NOT EXISTS message_state(
     message_state_id SERIAL PRIMARY KEY,

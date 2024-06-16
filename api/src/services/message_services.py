@@ -51,7 +51,6 @@ async def save_in_db_team_message(message, user):
 
         cursor.execute(message_in_db, message_in_db_query_parameters)
         db.conn.commit()
-        print("saved in db")
 
 async def save_in_db_team_message_general(message, user):
     cursor = db.conn.cursor()

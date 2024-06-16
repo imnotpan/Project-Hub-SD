@@ -15,7 +15,8 @@ async def create_team(team_data, project_id): # Registra un equipo en la base de
     if team_data.team_password == "" or team_data.team_password == None: # Si no se especifica contraseña se crea un equipo publico
         team_add_query = f"""
             INSERT INTO team (team_creation_date, team_description, team_name, project_id, team_private)
-            VALUES (%s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s) 
+            RETURNING team_id;
         """
         team_add_query_parameters = (
             datetime.now(),
@@ -27,7 +28,8 @@ async def create_team(team_data, project_id): # Registra un equipo en la base de
     else: # Si se especifica contraseña se crea un equipo privado
         team_add_query = f""" 
             INSERT INTO team (team_creation_date, team_description, team_name, project_id, team_password, team_private)
-            VALUES (%s, %s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING team_id;
         """
         team_add_query_parameters = (
             datetime.now(),
@@ -38,7 +40,9 @@ async def create_team(team_data, project_id): # Registra un equipo en la base de
             True,
         )
     cursor.execute(team_add_query, team_add_query_parameters)
+    team_id = cursor.fetchone()[0]
     db.conn.commit()
+    return team_id
 
 
 async def get_all_users_team(team_id): # Obtiene todos los usuarios de un equipo segun su id
@@ -91,7 +95,6 @@ async def verify_team_password(team_id, team_password, team_password_hash): # Va
 
 
 async def join_team(user_id, team_id): # Une un usuario a un equipo 
-
     cursor = db.conn.cursor()
     check_user_query = """
         SELECT COUNT(*) FROM app_user_team WHERE app_user_id = %s AND team_id = %s;
@@ -117,10 +120,10 @@ async def join_team(user_id, team_id): # Une un usuario a un equipo
             SET user_status = 'inactive'
             WHERE app_user_id = {user_id};
             
-            INSERT INTO app_user_team (team_id, app_user_id, user_status)
-            VALUES (%s, %s, %s);
+            INSERT INTO app_user_team (team_id, app_user_id, user_status, user_type)
+            VALUES (%s, %s, %s, %s);
         """
-        insert_user_query_parameters = (team_id, user_id, "active")
+        insert_user_query_parameters = (team_id, user_id, "active", 0)
         cursor.execute(insert_user_query, insert_user_query_parameters)
 
     db.conn.commit()
@@ -154,3 +157,50 @@ async def send_user_status(user, team_id, project_id, status): # Envía el estad
     body = json.dumps(content_message_broker)
     rabbit_controller.rabbit_controller.send_message(body.encode(), f"users_team_{team_id}")
     return content_message_broker
+
+
+async def add_leader(user_id, team_id):
+    cursor = db.conn.cursor()
+    check_user_query = """
+        SELECT * FROM app_user_team WHERE app_user_id = %s AND team_id = %s;
+    """
+    check_user_query_parameters = (user_id, team_id)       
+    cursor.execute(check_user_query, check_user_query_parameters)
+    user_team_id = cursor.fetchone()
+
+    if user_team_id is not None:    
+        update_user_type = f"""
+            UPDATE app_user_team
+                SET user_type = 1
+                WHERE app_user_id = {user_id} AND {team_id}; 
+        """ 
+        cursor.execute(update_user_type, )
+        db.conn.commit()
+    else:
+        insert_user_type = f"""
+            INSERT INTO app_user_team(team_id, app_user_id, user_status, user_type)
+            VALUES (%s, %s, %s, %s);
+        """
+        insert_user_type_parameters = (
+            team_id,
+            user_id,
+            'inactive',
+            1
+        )
+        cursor.execute(insert_user_type, insert_user_type_parameters)
+        db.conn.commit()
+    
+
+async def verify_team_leader(user_id, team_id):
+    cursor = db.conn.cursor()
+    check_user_query = """
+        SELECT * FROM app_user_team WHERE app_user_id = %s AND team_id = %s AND (user_type = 1 OR user_type = 2);
+    """
+    check_user_query_parameters = (user_id, team_id)       
+    cursor.execute(check_user_query, check_user_query_parameters)
+    user_team_id = cursor.fetchone()
+    if user_team_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="You aren't leader or Owner",
+        )

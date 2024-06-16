@@ -49,7 +49,8 @@ async def create_team(
     team_data: team_models.TeamRegisterModel = Depends(),
 ):
     project = await project_services.get_project_current(team_data.project_auth_key)
-    await team_services.create_team(team_data, project["project_id"])
+    team_id = await team_services.create_team(team_data, project["project_id"])
+    await team_services.add_leader(user["app_user_id"], team_id)
     return {201, f"Team created in project {project['project_id']}"}
 
 
@@ -83,3 +84,18 @@ async def get_tasks_messages(
     await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
     tasks = await tasks_services.get_tasks_from_team(team_data.team_id)
     return tasks
+
+
+@team_router.post("/{team_id}/add/leader", tags=["team"]) # Ruta para la obtención de tareas de un equipo
+async def get_tasks_messages(
+    user_to_add: team_models.TeamAddLeader = Depends(),
+    user=Depends(auth_services.get_user_current),
+    team_data: team_models.TeamDataSearch = Depends()
+):
+    ## Solo lideres del equipo o dueños del proyecto pueden añadir lideres
+    project = await project_services.get_project_current(team_data.project_auth_key)
+    await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
+    await team_services.verify_team_leader(user["app_user_id"], team_data.team_id)
+    user_to_add_data = await auth_services.get_user_by_email(user_to_add.user_email) 
+    await team_services.add_leader(user_to_add_data['app_user_id'], team_data.team_id)
+    return {"add at leader"}
