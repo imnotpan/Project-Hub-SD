@@ -88,7 +88,7 @@ async def get_tasks_messages(
 
 @team_router.post("/{team_id}/add/leader", tags=["team"]) # Ruta para la obtención de tareas de un equipo
 async def get_tasks_messages(
-    user_to_add: team_models.TeamAddLeader = Depends(),
+    user_to_add: team_models.TeamLeader = Depends(),
     user=Depends(auth_services.get_user_current),
     team_data: team_models.TeamDataSearch = Depends()
 ):
@@ -97,5 +97,19 @@ async def get_tasks_messages(
     await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
     await team_services.verify_team_leader(user["app_user_id"], team_data.team_id)
     user_to_add_data = await auth_services.get_user_by_email(user_to_add.user_email) 
-    await team_services.add_leader(user_to_add_data['app_user_id'], team_data.team_id)
+    await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 1)
     return {"add at leader"}
+
+@team_router.post("/{team_id}/delete/leader", tags=["team"]) # Ruta para la obtención de tareas de un equipo
+async def get_tasks_messages(
+    user_to_delete: team_models.TeamLeader = Depends(),
+    user=Depends(auth_services.get_user_current),
+    team_data: team_models.TeamDataSearch = Depends()
+):
+    ## Solo lideres del equipo o dueños del proyecto pueden añadir lideres
+    project = await project_services.get_project_current(team_data.project_auth_key)
+    await team_services.verify_team_in_project(team_data.team_id, project["project_id"])
+    await team_services.verify_team_leader(user["app_user_id"], team_data.team_id)
+    user_to_add_data = await auth_services.get_user_by_email(user_to_delete.user_email) 
+    await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 0)
+    return {"deleted leader"}

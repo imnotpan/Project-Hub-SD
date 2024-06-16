@@ -159,7 +159,7 @@ async def send_user_status(user, team_id, project_id, status): # Envía el estad
     return content_message_broker
 
 
-async def add_leader(user_id, team_id):
+async def change_user_type(user_id, team_id, user_type):
     cursor = db.conn.cursor()
     check_user_query = """
         SELECT * FROM app_user_team WHERE app_user_id = %s AND team_id = %s;
@@ -171,8 +171,8 @@ async def add_leader(user_id, team_id):
     if user_team_id is not None:    
         update_user_type = f"""
             UPDATE app_user_team
-                SET user_type = 1
-                WHERE app_user_id = {user_id} AND {team_id}; 
+                SET user_type = {user_type}
+                WHERE app_user_id = {user_id} AND team_id = {team_id}; 
         """ 
         cursor.execute(update_user_type, )
         db.conn.commit()
@@ -185,7 +185,7 @@ async def add_leader(user_id, team_id):
             team_id,
             user_id,
             'inactive',
-            1
+            user_type
         )
         cursor.execute(insert_user_type, insert_user_type_parameters)
         db.conn.commit()

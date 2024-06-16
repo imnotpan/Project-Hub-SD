@@ -16,5 +16,5 @@ class TeamDataSearch(BaseModel): # Modelo para la búsqueda de equipos
     project_auth_key: str
     team_id: int
 
-class TeamAddLeader(BaseModel):
+class TeamLeader(BaseModel):
     user_email: str
