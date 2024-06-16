@@ -60,11 +60,11 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
 					width: '100%',
 					boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
 				}}>
-				<div className="d-flex align-items-center justify-content-between mb-4">
-					<h2 className="font-inter" style={{ fontSize: '1.7rem' }}>
+				<div className="d-flex align-items-center justify-content-between mb-4 p-2">
+					<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
 						Nombre de la tarea
 					</h2>
-					<div>
+					<div className="me-2">
 						<button
 							className="border-0 rounded-5"
 							style={{
