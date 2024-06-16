@@ -150,3 +150,70 @@ async def get_all_projects_from_user(user_id): # Obtiene todos los proyectos de 
         project_dict = dict(zip(column_names, projects))
         project_as_dict.append(project_dict)
     return project_as_dict
+
+
+async def add_co_owners(project_id, user_id):
+    cursor = db.conn.cursor()
+    add_co_owner = f"""
+        INSERT INTO project_co_owners (project_id, user_id)
+        VALUES (%s, %s);
+    """
+    add_co_owner_parameters = (project_id, user_id)
+    cursor.execute(add_co_owner, add_co_owner_parameters)
+    db.conn.commit()
+    return {"project_id": project_id}
+
+async def project_owner_verify(project_id, user_id):
+    cursor = db.conn.cursor()
+    verify_owner = f"""
+        SELECT p.project_owner_id, p.project_id, co.project_id, co.user_id
+        FROM 
+            project p
+        FULL JOIN
+            project_co_owners co
+        ON 
+            p.project_id = co.project_id
+        WHERE
+            (co.user_id = {user_id} OR p.project_owner_id = {user_id}) and p.project_id = '{project_id}' 
+    """
+    cursor.execute(verify_owner, )
+    user_project_owner = cursor.fetchone()
+    db.conn.commit()
+    if user_project_owner is None:
+        return False
+    else:
+        return True
+
+async def project_main_owner_verify(project_id, user_id):
+    cursor = db.conn.cursor()
+    verify_owner = f"""
+        SELECT p.project_owner_id, p.project_id, co.project_id, co.user_id
+        FROM 
+            project p
+        FULL JOIN
+            project_co_owners co
+        ON 
+            p.project_id = co.project_id
+        WHERE
+            p.project_owner_id = {user_id} and p.project_id = '{project_id}' 
+    """
+    cursor.execute(verify_owner, )
+    user_project_owner = cursor.fetchone()
+    if user_project_owner is not None:
+        raise HTTPException(
+            status_code=401,
+            detail="You are delete the project main owner ",
+        )
+    db.conn.commit()
+    return {"project_id": project_id}
+
+async def delete_co_owner(project_id, user_id):
+    cursor = db.conn.cursor()
+    delete_owner = f"""
+        DELETE FROM project_co_owners
+        WHERE project_id = '{project_id}' AND user_id = {user_id}
+    """
+    
+    print(delete_owner)
+    cursor.execute(delete_owner, )
+    db.conn.commit()
