@@ -16,6 +16,7 @@ async def send_message_to_queue(message, user, project): # Añade un mensaje a l
 
 async def save_in_db_team_message(message, user): # Guarda un mensaje en la base de datos
     cursor = db.conn.cursor()
+
     check_user_query = f"""
         SELECT * FROM app_user_team WHERE app_user_id = %s AND team_id = %s;
     """
@@ -26,17 +27,17 @@ async def save_in_db_team_message(message, user): # Guarda un mensaje en la base
     cursor.execute(check_user_query,check_user_query_parameters)
     user_team_id = cursor.fetchone()[0]
     if user_team_id is not None:    
+        
         message_in_db = f"""
             INSERT INTO chat_message (message_date, message_content, message_state_id, message_type_id, app_user_team_id)
             VALUES (%s, %s, %s, %s, %s);
         """
-    
         message_in_db_query_parameters = ( 
                                 datetime.now(),
                                 message.message_content,
                                 2,
                                 3,
-                                user_team_id
+                                user_team_id 
                                 )
 
         cursor.execute(message_in_db,message_in_db_query_parameters)

@@ -1,28 +1,6 @@
 version: '3.8'
 
 services:
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile.api.dev
-    container_name: project_hub_api
-    hostname: project_hub_api
-    depends_on:
-      - database
-      - broker
-    env_file:
-      - ./api/.env.api
-    networks:
-      - project_hub_overlay
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./api:/app
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-      
   database:
     hostname: project_hub_db
     build:
@@ -38,31 +16,20 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend.dev
-    container_name: project_hub_frontend
-    env_file:
-      - ./frontend/.env
-    networks:
-      - project_hub_overlay
-    ports:
-      - "2530:5173"
-    volumes:
-      - ./frontend/src:/app/src
-    deploy:
-      mode: replicated
-      replicas: 1
-
+    
   broker:
+    hostname: project_hub_broker
     build:
       context: ./broker
       dockerfile: Dockerfile.rabbitmq
     container_name: project_hub_broker
-    env_file:
-      - ./broker/.env.rabbitmq
+    environment:
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin123
+      - RABBITMQ_STOMP_PORT=61613
+      - RABBITMQ_STOMP_WEBSOCKET_PORT=15674
+      - FIRST_NODE_HOST=project_hub_broker
+      - ERLANG_COOKIE=PWOEMFFBXIGKFLKAMOHE
     networks:
       - project_hub_overlay
     ports:
@@ -70,6 +37,62 @@ services:
       - "2560:15672"
       - "61613:61613"     
       - "15674:15674"    
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.api.dev
+    container_name: project_hub_api
+    hostname: project_hub_api
+    depends_on:
+      - database
+      - broker
+    environment:
+      - POSTGRES_DB=project_hud_db
+      - POSTGRES_HOST=project_hub_db
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - RABBIT_USER=admin
+      - RABBIT_PASSWORD=admin123
+      - RABBIT_HOST=project_hub_broker
+      - RABBIT_PORT=5672
+      - SECRET_KEY=littlechayanne
+      - OVERLAY_HOST=0.0.0.0
+    networks:
+      - project_hub_overlay
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    deploy:
+      mode: replicated
+      replicas: 1
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend.dev
+    container_name: project_hub_frontend
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - IP=192.168.1.2
+      - VITE_API_URL=http://localhost:8000
+      - VITE_BROKER_URL=10.0.1.53:15672
+      - VITE_DEVELOPMENT=false
+      - VITE_RABBITMQ_LOGIN=admin
+      - VITE_RABBITMQ_PASSCODE=admin123
+
+    networks:
+      - project_hub_overlay
+    ports:
+      - "2530:5173"
+    volumes:
+      - ./frontend/src:/app/src
     deploy:
       mode: replicated
       replicas: 1
