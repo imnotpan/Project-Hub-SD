@@ -1,18 +1,30 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
 
 interface ToDoContentProps {
 	onClose: () => void
+	title: string
 }
 
-// Componente para crear un proyecto
-const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
+const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
 
-	const [startDate, setStartDate] = useState('')
-	const [endDate, setEndDate] = useState('')
+	const [data, setData] = useState({
+		startDate: '',
+		endDate: '',
+		description: '',
+	})
+
+	const handleDataInputs = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+	) => {
+		setData({
+			...data,
+			[e.target.name]: e.target.value,
+		})
+	}
 
 	const handleMouseOver = () => {
 		setCloseButtonHovered(true)
@@ -22,21 +34,14 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
 		setCloseButtonHovered(false)
 	}
 
-	const handleStartDateSelect = (date: string) => {
-		setStartDate(date)
-	}
-
-	const handleEndDateSelect = (date: string) => {
-		setEndDate(date)
-	}
-
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		// Aquí manejas el envío del formulario
-		if (!startDate || !endDate) {
+
+		if (!data.startDate || !data.endDate) {
 			toast.warning('Por favor, completa todas las fechas.')
 			return
 		}
+
 		toast.success('Tarea creada exitosamente.')
 		onClose()
 	}
@@ -50,7 +55,6 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
 				width: '100%',
 				height: '100%',
 				backgroundColor: 'rgba(255, 255, 255, 0.9)',
-
 				zIndex: 9999,
 			}}>
 			<div
@@ -62,7 +66,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
 				}}>
 				<div className="d-flex align-items-center justify-content-between mb-4 p-2">
 					<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
-						Nombre de la tarea
+						{title}
 					</h2>
 					<div className="me-2">
 						<button
@@ -92,33 +96,49 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose }) => {
 					<div className="mb-3 d-flex align-items-center">
 						<input
 							placeholder="Fecha de inicio"
-							style={{
-								backgroundColor: '#f8f8f8',
-								borderColor: 'white',
-							}}
+							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="text"
-							value={startDate}
-							name="start_date"
+							value={data.startDate}
+							onChange={handleDataInputs}
+							name="startDate"
 							className="form-control me-2"
 							readOnly
 						/>
-						<Calendar dateSelect={handleStartDateSelect} />
+						<Calendar
+							dateSelect={(date) => setData({ ...data, startDate: date })}
+						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
 						<input
 							placeholder="Fecha de fin"
-							style={{
-								backgroundColor: '#f8f8f8',
-								borderColor: 'white',
-							}}
+							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="text"
-							value={endDate}
-							name="end_date"
+							value={data.endDate}
+							onChange={handleDataInputs}
+							name="endDate"
 							className="form-control me-2"
 							readOnly
 						/>
-						<Calendar dateSelect={handleEndDateSelect} />
+						<Calendar
+							dateSelect={(date) => setData({ ...data, endDate: date })}
+						/>
 					</div>
+					<div className="mb-3 d-flex align-items-center">
+						<textarea
+							placeholder="Descripción de la tarea"
+							value={data.description}
+							onChange={handleDataInputs}
+							style={{
+								backgroundColor: '#f8f8f8',
+								borderColor: 'white',
+								height: '150px',
+								resize: 'none',
+							}}
+							name="description"
+							className="form-control me-2"
+						/>
+					</div>
+
 					<div className="mb-3"></div>
 					<div style={{ width: '100%' }}>
 						<button

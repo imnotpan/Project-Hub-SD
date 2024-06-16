@@ -1,4 +1,4 @@
-import React, { DragEvent, useState } from 'react'
+import React, { DragEvent, useState, useRef, useEffect } from 'react'
 import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 
@@ -17,25 +17,8 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 	const [text, setText] = useState(title || 'Agrega tareas!')
 	const [isEditing, setIsEditing] = useState(false)
 	const [isOver, setIsOver] = useState(false)
+	const titleRef = useRef<HTMLInputElement>(null)
 
-	const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-		event.preventDefault()
-		setIsOver(true)
-	}
-
-	const handleDragLeave = () => {
-		setIsOver(false)
-	}
-
-	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-		event.preventDefault()
-		setIsOver(false)
-		const data = event.dataTransfer?.getData('text/plain')
-		if (data === 'DraggableItem') {
-			// Realizar acciones necesarias al soltar el elemento
-			console.log('Elemento soltado en el área.')
-		}
-	}
 	const handleAddTodo = () => {
 		const newTodoItem: Todo = {
 			id: Date.now(),
@@ -53,6 +36,12 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 		setIsEditing(true)
 	}
 
+	useEffect(() => {
+		if (isEditing) {
+			titleRef.current?.focus()
+		}
+	}, [isEditing])
+
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setText(event.target.value)
 	}
@@ -63,21 +52,53 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 		}
 	}
 
+	const handleBlur = () => {
+		setIsEditing(false)
+	}
+
+	const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+		if (event.preventDefault) {
+			event.preventDefault()
+			setIsOver(true)
+		}
+		return false
+	}
+
+	const handleDragLeave = () => {
+		setIsOver(false)
+	}
+
+	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+		event.preventDefault()
+		setIsOver(false)
+		const data = event.dataTransfer?.getData('text/plain')
+		if (data) {
+			console.log('Elemento soltado en el área.')
+			const newTodoItem: Todo = {
+				id: parseInt(data),
+				completed: false,
+			}
+			setTodos([...todos, newTodoItem])
+		}
+	}
+
 	return (
 		<div className="">
-			<div onClick={handleTextClick} className="mb-2 p-2 ">
+			<div onClick={handleTextClick} className="mb-2 p-2">
 				{isEditing ? (
 					<input
+						ref={titleRef}
 						type="text"
 						className="form-control"
 						value={text}
 						onChange={handleTextChange}
 						onKeyDown={handleKeyDown}
+						onBlur={handleBlur}
 						autoFocus
 					/>
 				) : (
 					<div
-						className=" fs-5 rounded-2 "
+						className="fs-5 rounded-2"
 						style={{
 							backgroundColor: color,
 						}}>
@@ -86,7 +107,7 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 				)}
 			</div>
 			<div
-				className="row"
+				className="row rounded-4"
 				style={{
 					height: '38vh',
 					backgroundColor: isOver ? 'rgba(0, 0, 0, 0.1)' : '#ffffff',
@@ -100,13 +121,13 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 				<div className="col-md m-2 p-0">
 					<ul className="p-0 list-unstyled">
 						{todos.map((todo) => (
-							<li className="container " key={todo.id}>
+							<li className="container" key={todo.id}>
 								<ToDoCard id={todo.id} onDelete={handleDeleteTodo} />
 							</li>
 						))}
 					</ul>
 					<button
-						className="border-0 p-0 bg-transparent "
+						className="border-0 p-0 bg-transparent"
 						onClick={handleAddTodo}
 						onMouseOver={(e) => (
 							(e.currentTarget.style.transform = 'scale(1.1)'),
