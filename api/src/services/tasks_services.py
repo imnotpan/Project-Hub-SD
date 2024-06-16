@@ -63,7 +63,7 @@ async def update_task(task_data): # Actualiza una tarea en la base de datos segu
     db.conn.commit()
 
     
-async def destroy_task(task_id): # Elimina una tarea de la base de datos segun su id
+async def delete_task(task_id): # Elimina una tarea de la base de datos segun su id
     cursor = db.conn.cursor()
     task_destroy_query = f"""
         DELETE FROM task WHERE task_id = %s

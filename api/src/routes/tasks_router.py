@@ -23,5 +23,5 @@ async def update_task( task_data: tasks_models.TaskUpdateModel = Depends(), user
 @tasks_router.delete("/delete", tags=["tasks"] ) # Ruta para la eliminación de tareas
 async def delete_task( task_data: tasks_models.TaskDestroyModel = Depends(), user = Depends(auth_services.get_user_current)):
     project = await project_services.get_project_current(task_data.project_auth_key)
-    await tasks_services.destroy_task(task_data.task_id)
+    await tasks_services.delete_task(task_data.task_id)
     await tasks_services.send_task_to_queue(task_data, project['project_id'], 'destroy')
