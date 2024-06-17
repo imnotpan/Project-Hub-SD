@@ -1,24 +1,7 @@
 import React, { DragEvent, useState, useRef, useEffect } from 'react'
 import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
-
-interface Todo {
-	task_id: number
-	task_description: string
-	task_creation_date: string
-	task_end_date: string
-	task_deadline_date: string
-	task_difficult: number
-	task_state: string
-	team_id: number
-}
-
-type ToDoProps = {
-	color: string
-	title: string
-	tasks?: Todo[]
-	status: string
-}
+import { Todo, ToDoProps } from '../../types/types'
 
 const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 	const [todos, setTodos] = useState<Todo[]>([])
@@ -90,17 +73,22 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsOver(false)
-		const data = event.dataTransfer?.getData('text/html')
+		// Asegúrate de usar 'text/plain' para obtener solo el ID como texto
+
+		//recuperar el json
+		const data = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}')
+
 		if (data) {
+			// Verifica que taskId sea un número válido
 			const newTodoItem: Todo = {
-				task_id: parseInt(data),
-				task_description: '',
-				task_creation_date: '',
-				task_end_date: '',
-				task_deadline_date: '',
-				task_difficult: 0,
-				task_state: 'Pending', // Estado por defecto al agregar desde drag and drop
-				team_id: 1, // Ajustar según el equipo actual
+				task_id: data['task_id'],
+				task_description: data['task_description'],
+				task_creation_date: data['task_creation_date'],
+				task_end_date: data['task_end_date'],
+				task_deadline_date: data['task_deadline_date'],
+				task_difficult: data['task_difficult'],
+				task_state: data['task_state'],
+				team_id: data['team_id'], // Ajustar según el equipo actual
 			}
 			setTodos([...todos, newTodoItem])
 		}

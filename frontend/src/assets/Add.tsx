@@ -1,7 +1,7 @@
 import React from 'react'
 import { IconProps } from '../types/types'
 
-const Add: React.FC<IconProps> = ({ size, color }) => {
+const Add: React.FC<IconProps> = ({ size }) => {
 	return (
 		<svg
 			width={size}

@@ -95,14 +95,26 @@ const TeamsCard: React.FC<TeamsCardProps> = ({ team, colorRow }) => {
 					</div>
 				</div>
 				{showTeam && (
-					<div className="position-fixed top-0 start-0 h-100 w-100 d-flex justify-content-center align-items-center">
+					<div
+						className="d-flex justify-content-center align-items-center position-fixed mt-5"
+						style={{
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: 'calc(100vh - 46px)',
+							backgroundColor: 'rgba(255, 255, 255, 0.9)',
+							zIndex: 9999,
+						}}>
 						<div
-							className="bg-white rounded-2 p-1"
+							className="bg-white rounded-2 p-1 mb-5"
 							style={{
-								width: '25vw',
-								height: '40vh',
+								width: '80%',
+								maxWidth: '400px',
+								height: 'auto',
+								maxHeight: '90%',
 								display: 'flex',
 								flexDirection: 'column',
+								boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
 							}}>
 							<div
 								className="rounded-2 p-4"

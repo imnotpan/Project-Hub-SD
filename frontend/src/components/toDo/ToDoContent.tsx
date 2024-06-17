@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
 import Priority from './Priority'
 import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
 import { apiSendData } from '../../services/apiService'
-
-interface Todo {
-	task_id: number
-	task_description: string
-	task_creation_date: string
-	task_end_date: string
-	task_deadline_date: string
-	task_difficult: number
-	task_state: string
-	team_id: number
-}
-interface ToDoContentProps {
-	onClose: () => void
-	status: string
-	name: string
-	todo: Todo
-}
+import { ToDoContentProps } from '../../types/types'
 
 const ToDoContent: React.FC<ToDoContentProps> = ({
 	onClose,
@@ -52,11 +36,6 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 			typeof todo.task_difficult === 'number' ? todo.task_difficult : 0,
 		state: statusMap[status],
 	})
-
-	useEffect(() => {
-		// Perform any initialization logic here if needed
-		console.log(todo.task_creation_date, todo.task_end_date)
-	}, [])
 
 	const handleDataInputs = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -127,6 +106,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 	return (
 		<div
 			className="d-flex justify-content-center align-items-center position-fixed"
+			draggable="false"
 			style={{
 				top: 0,
 				left: 0,
@@ -173,7 +153,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 				<form onSubmit={handleSubmit}>
 					<div className="mb-3 d-flex align-items-center">
 						<input
-							placeholder="Fecha de inicio"
+							placeholder="Fecha de creacion"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="text"
 							value={handleStartDate(data.startDate)}

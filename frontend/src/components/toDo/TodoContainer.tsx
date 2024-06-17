@@ -34,7 +34,7 @@ const ToDoContainer: React.FC = () => {
 
 				if (response.ok) {
 					setDataToDo(data)
-					toast.success('Lista de tareas cargadas exitosamente!.')
+					toast.success('Tareas obtenidas exitosamente!.')
 				}
 			} catch (error) {
 				toast.warning(

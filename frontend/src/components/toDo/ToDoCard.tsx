@@ -6,23 +6,7 @@ import Save from '../../assets/Save'
 import { projectAuthStore, userAuthStore } from '../../authStore'
 import { toast } from 'sonner'
 import { apiDeleteData } from '../../services/apiService'
-
-interface Todo {
-	task_id: number
-	task_description: string
-	task_creation_date: string
-	task_end_date: string
-	task_deadline_date: string
-	task_difficult: number
-	task_state: string
-	team_id: number
-}
-
-interface ToDoCardProps {
-	todo: Todo
-	onDelete: (id: number) => void
-	status: string
-}
+import { ToDoCardProps } from '../../types/types'
 
 const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 	const [clickToDo, setClickToDo] = useState(false)
@@ -45,7 +29,6 @@ const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 				Authorization: `Bearer ${token_user}`,
 			}
 			const response = await apiDeleteData(route, headers)
-
 			if (response.ok) {
 				toast.success('Tarea eliminada exitosamente!.')
 			}
@@ -91,7 +74,7 @@ const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 
 	const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
 		event.stopPropagation()
-		event.dataTransfer.setData('text/html', todo.task_id.toString())
+		event.dataTransfer.setData('text/plain', JSON.stringify(todo))
 		dragItem.current!.style.opacity = '0.5'
 	}
 
@@ -101,83 +84,59 @@ const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 	}
 
 	return (
-		<div
-			className={`container py-1 card my-2 ${isDragging ? 'dragging' : ''}`}
-			style={{
-				backgroundColor: '#fff',
-				border: '1px solid #ddd',
-				transition: 'background-color 0.2s',
-				boxShadow: isOver ? '0 0 5px rgba(0, 0, 0, 0.2)' : 'none',
-			}}
-			draggable
-			ref={dragItem}
-			onMouseOver={() => setIsOver(true)}
-			onMouseOut={() => setIsOver(false)}
-			onDragStart={handleDragStart}
-			onDragEnd={handleDragEnd}>
-			<div className="row align-items-center">
-				{clickToDo && (
-					<ToDoContent
-						name={text}
-						onClose={() => setClickToDo(false)}
-						status={status}
-						todo={todo}
-					/>
-				)}
-				<div
-					className="col-md d-flex align-items-center p-0 px-2 scale"
-					onClick={() => setClickToDo(true)}
-					style={{ cursor: 'pointer' }}>
-					{isEditing ? (
-						<input
-							ref={inputRef}
-							type="text"
-							className="form-control p-0 fs-5 px-1"
-							value={text}
-							onChange={handleTextChange}
-							onBlur={handleBlur}
-							onKeyDown={handleKeyDown}
-							autoFocus
-							style={{
-								cursor: 'pointer',
-								outline: 'none',
-								color: '#333',
-								backgroundColor: 'transparent',
-								border: 'none',
-								boxShadow: 'none',
-							}}
-						/>
-					) : (
-						<div className="fs-5">
-							{text.length > 17
-								? text.slice(0, 16) + '...'
-								: text || 'Sin nombre'}
-						</div>
-					)}
-				</div>
-				<div className="col-md-1 p-0">
-					<button
-						className={`border-0 p-0 bg-transparent ${
-							isEditing ? 'd-none' : ''
-						}`}
-						onClick={handleEdit}
-						onMouseOver={(e) => {
-							e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
-							e.currentTarget.style.transition = 'transform 0.2s'
-							e.currentTarget.style.cursor = 'pointer'
-							e.currentTarget.style.color = '#4CD9D7'
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.transform = 'scale(1)'
-							e.currentTarget.style.transition = 'transform 0.2s'
-							e.currentTarget.style.color = '#333'
-						}}>
-						<Edit size="28" color="" />
-					</button>
-					{isEditing && (
+		<>
+			<div
+				className={`container py-1 card my-2 ${isDragging ? 'dragging' : ''}`}
+				style={{
+					backgroundColor: '#fff',
+					border: '1px solid #ddd',
+					transition: 'background-color 0.2s',
+					boxShadow: isOver ? '0 0 5px rgba(0, 0, 0, 0.2)' : 'none',
+				}}
+				draggable
+				ref={dragItem}
+				onMouseOver={() => setIsOver(true)}
+				onMouseOut={() => setIsOver(false)}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}>
+				<div className="row align-items-center">
+					<div
+						className="col-md d-flex align-items-center p-0 px-2 scale"
+						onClick={() => setClickToDo(true)}
+						style={{ cursor: 'pointer' }}>
+						{isEditing ? (
+							<input
+								ref={inputRef}
+								type="text"
+								className="form-control p-0 fs-5 px-1"
+								value={text}
+								onChange={handleTextChange}
+								onBlur={handleBlur}
+								onKeyDown={handleKeyDown}
+								autoFocus
+								style={{
+									cursor: 'pointer',
+									outline: 'none',
+									color: '#333',
+									backgroundColor: 'transparent',
+									border: 'none',
+									boxShadow: 'none',
+								}}
+							/>
+						) : (
+							<div className="fs-5">
+								{text.length > 17
+									? text.slice(0, 16) + '...'
+									: text || 'Sin nombre'}
+							</div>
+						)}
+					</div>
+					<div className="col-md-1 p-0">
 						<button
-							className="border-0 p-0 bg-transparent"
-							onClick={handleSave}
+							className={`border-0 p-0 bg-transparent ${
+								isEditing ? 'd-none' : ''
+							}`}
+							onClick={handleEdit}
 							onMouseOver={(e) => {
 								e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
 								e.currentTarget.style.transition = 'transform 0.2s'
@@ -189,30 +148,56 @@ const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 								e.currentTarget.style.transition = 'transform 0.2s'
 								e.currentTarget.style.color = '#333'
 							}}>
-							<Save size="28" color="" />
+							<Edit size="28" color="" />
 						</button>
-					)}
-				</div>
-				<div className="col-md-2 p-0">
-					<button
-						className="border-0 p-0 bg-transparent"
-						onClick={handleDeleteTodo}
-						onMouseOver={(e) => {
-							e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
-							e.currentTarget.style.transition = 'transform 0.2s'
-							e.currentTarget.style.cursor = 'pointer'
-							e.currentTarget.style.color = '#DF3813'
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.transform = 'scale(1)'
-							e.currentTarget.style.transition = 'transform 0.2s'
-							e.currentTarget.style.color = '#333'
-						}}>
-						<Trash size="28" color="" />
-					</button>
+						{isEditing && (
+							<button
+								className="border-0 p-0 bg-transparent"
+								onClick={handleSave}
+								onMouseOver={(e) => {
+									e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
+									e.currentTarget.style.transition = 'transform 0.2s'
+									e.currentTarget.style.cursor = 'pointer'
+									e.currentTarget.style.color = '#4CD9D7'
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'scale(1)'
+									e.currentTarget.style.transition = 'transform 0.2s'
+									e.currentTarget.style.color = '#333'
+								}}>
+								<Save size="28" color="" />
+							</button>
+						)}
+					</div>
+					<div className="col-md-2 p-0">
+						<button
+							className="border-0 p-0 bg-transparent"
+							onClick={handleDeleteTodo}
+							onMouseOver={(e) => {
+								e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
+								e.currentTarget.style.transition = 'transform 0.2s'
+								e.currentTarget.style.cursor = 'pointer'
+								e.currentTarget.style.color = '#DF3813'
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.transform = 'scale(1)'
+								e.currentTarget.style.transition = 'transform 0.2s'
+								e.currentTarget.style.color = '#333'
+							}}>
+							<Trash size="28" color="" />
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
+			{clickToDo && (
+				<ToDoContent
+					name={text !== '' ? text : 'Sin nombre'}
+					onClose={() => setClickToDo(false)}
+					status={status}
+					todo={todo}
+				/>
+			)}
+		</>
 	)
 }
 
