@@ -83,8 +83,8 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 	}
 
 	return (
-		<div className="">
-			<div onClick={handleTextClick} className="mb-2 p-2">
+		<div style={{ position: 'relative' }}>
+			<div onClick={handleTextClick} className="mb-2">
 				{isEditing ? (
 					<input
 						ref={titleRef}
@@ -106,19 +106,20 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 					</div>
 				)}
 			</div>
+
 			<div
-				className="row rounded-4"
+				className="row rounded-4 position-relative"
 				style={{
-					height: '38vh',
+					height: '36vh',
 					backgroundColor: isOver ? 'rgba(0, 0, 0, 0.1)' : '#ffffff',
 					overflowY: 'auto',
-					overflowX: 'hidden',
+					marginRight: '-17px', // Ajuste para compensar la barra de desplazamiento vertical
 					color: isOver ? '#ffffff' : '#000000',
 				}}
 				onDragOver={handleDragOver}
 				onDragLeave={handleDragLeave}
 				onDrop={handleDrop}>
-				<div className="col-md m-2 p-0">
+				<div className="col-md p-0">
 					<ul className="p-0 list-unstyled">
 						{todos.map((todo) => (
 							<li className="container" key={todo.id}>
@@ -126,22 +127,23 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 							</li>
 						))}
 					</ul>
-					<button
-						className="border-0 p-0 bg-transparent"
-						onClick={handleAddTodo}
-						onMouseOver={(e) => (
-							(e.currentTarget.style.transform = 'scale(1.1)'),
-							(e.currentTarget.style.transition = 'transform 0.2s'),
-							(e.currentTarget.style.cursor = 'pointer')
-						)}
-						onMouseLeave={(e) => (
-							(e.currentTarget.style.transform = 'scale(1)'),
-							(e.currentTarget.style.transition = 'transform 0.2s')
-						)}>
-						<Add size="36" color={isOver ? '#ffffff' : '#323232'} />
-					</button>
 				</div>
 			</div>
+
+			<button
+				className="border-0 p-0 bg-transparent bottom-0 "
+				onClick={handleAddTodo}
+				onMouseOver={(e) => {
+					e.currentTarget.style.transform = 'scale(1.1)'
+					e.currentTarget.style.transition = 'transform 0.2s'
+					e.currentTarget.style.cursor = 'pointer'
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.transform = 'scale(1)'
+					e.currentTarget.style.transition = 'transform 0.2s'
+				}}>
+				<Add size="36" color={isOver ? '#ffffff' : '#323232'} />
+			</button>
 		</div>
 	)
 }

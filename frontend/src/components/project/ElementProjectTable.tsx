@@ -157,7 +157,7 @@ const ElementProjectTable: React.FC<ElementProjectTableProps> = ({
 						e.currentTarget.style.color = '#333'
 						SetHover(false)
 					}}>
-					<p className="m-0 text-center ">{project_id}</p>
+					<p className="m-0 text-center px-2">{project_id}</p>
 					<Copy color={hover ? '#a1a5a7' : '#333'} size="20" />
 				</div>
 			</td>

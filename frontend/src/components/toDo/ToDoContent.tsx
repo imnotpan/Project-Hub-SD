@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
+import Priority from './Priority'
 
 interface ToDoContentProps {
 	onClose: () => void
@@ -124,6 +125,9 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
+						<Priority />
+					</div>
+					<div className="mb-3 d-flex align-items-center">
 						<textarea
 							placeholder="Descripción de la tarea"
 							value={data.description}
@@ -138,8 +142,6 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 							className="form-control me-2"
 						/>
 					</div>
-
-					<div className="mb-3"></div>
 					<div style={{ width: '100%' }}>
 						<button
 							type="submit"
