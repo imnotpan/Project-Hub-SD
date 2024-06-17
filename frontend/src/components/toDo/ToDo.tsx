@@ -3,84 +3,115 @@ import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 
 interface Todo {
-	id: number
-	completed: boolean
+	task_id: number
+	task_description: string
+	task_creation_date: string
+	task_end_date: string
+	task_deadline_date: string
+	task_difficult: number
+	task_state: string
+	team_id: number
 }
 
 type ToDoProps = {
 	color: string
 	title: string
+	tasks?: Todo[]
+	status: string
 }
 
-const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
+const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 	const [todos, setTodos] = useState<Todo[]>([])
 	const [text, setText] = useState(title || 'Agrega tareas!')
 	const [isEditing, setIsEditing] = useState(false)
 	const [isOver, setIsOver] = useState(false)
 	const titleRef = useRef<HTMLInputElement>(null)
 
+	useEffect(() => {
+		if (tasks) {
+			setTodos(tasks)
+		}
+	}, [tasks])
+
+	// Función para agregar una nueva tarea
 	const handleAddTodo = () => {
 		const newTodoItem: Todo = {
-			id: Date.now(),
-			completed: false,
+			task_id: Date.now(),
+			task_description: '',
+			task_creation_date: '',
+			task_end_date: '',
+			task_deadline_date: '',
+			task_difficult: 0,
+			task_state: 'Pending', // Estado por defecto al agregar nueva tarea
+			team_id: 1, // Ajustar según el equipo actual
 		}
-
 		setTodos([...todos, newTodoItem])
 	}
 
+	// Función para eliminar una tarea por su ID
 	const handleDeleteTodo = (id: number) => {
-		setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
+		setTodos((prevTodos) => prevTodos.filter((todo) => todo.task_id !== id))
 	}
 
+	// Cambiar a modo de edición para el título
 	const handleTextClick = () => {
 		setIsEditing(true)
 	}
 
-	useEffect(() => {
-		if (isEditing) {
-			titleRef.current?.focus()
-		}
-	}, [isEditing])
-
+	// Manejar cambios en el texto del título
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setText(event.target.value)
 	}
 
+	// Manejar eventos de teclado para el input de título
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
 			setIsEditing(false)
 		}
 	}
 
+	// Manejar pérdida de foco del input de título
 	const handleBlur = () => {
 		setIsEditing(false)
 	}
 
+	// Manejar evento de arrastre sobre el contenedor
 	const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-		if (event.preventDefault) {
-			event.preventDefault()
-			setIsOver(true)
-		}
-		return false
+		event.preventDefault()
+		setIsOver(true)
 	}
 
+	// Manejar salida del evento de arrastre del contenedor
 	const handleDragLeave = () => {
 		setIsOver(false)
 	}
 
+	// Manejar soltar un elemento dentro del contenedor
 	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsOver(false)
-		const data = event.dataTransfer?.getData('text/plain')
+		const data = event.dataTransfer?.getData('text/html')
 		if (data) {
-			console.log('Elemento soltado en el área.')
 			const newTodoItem: Todo = {
-				id: parseInt(data),
-				completed: false,
+				task_id: parseInt(data),
+				task_description: '',
+				task_creation_date: '',
+				task_end_date: '',
+				task_deadline_date: '',
+				task_difficult: 0,
+				task_state: 'Pending', // Estado por defecto al agregar desde drag and drop
+				team_id: 1, // Ajustar según el equipo actual
 			}
 			setTodos([...todos, newTodoItem])
 		}
 	}
+
+	// Efecto para enfocar el input de título cuando se inicia la edición
+	useEffect(() => {
+		if (isEditing) {
+			titleRef.current?.focus()
+		}
+	}, [isEditing])
 
 	return (
 		<div style={{ position: 'relative' }}>
@@ -122,8 +153,12 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 				<div className="col-md p-0">
 					<ul className="p-0 list-unstyled">
 						{todos.map((todo) => (
-							<li className="container" key={todo.id}>
-								<ToDoCard id={todo.id} onDelete={handleDeleteTodo} />
+							<li className="container" key={todo.task_id}>
+								<ToDoCard
+									todo={todo}
+									onDelete={handleDeleteTodo}
+									status={status}
+								/>
 							</li>
 						))}
 					</ul>
@@ -131,7 +166,7 @@ const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
 			</div>
 
 			<button
-				className="border-0 p-0 bg-transparent bottom-0 "
+				className="border-0 p-0 bg-transparent bottom-0"
 				onClick={handleAddTodo}
 				onMouseOver={(e) => {
 					e.currentTarget.style.transform = 'scale(1.1)'

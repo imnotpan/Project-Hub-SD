@@ -1,22 +1,62 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
 import Priority from './Priority'
+import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { apiSendData } from '../../services/apiService'
 
+interface Todo {
+	task_id: number
+	task_description: string
+	task_creation_date: string
+	task_end_date: string
+	task_deadline_date: string
+	task_difficult: number
+	task_state: string
+	team_id: number
+}
 interface ToDoContentProps {
 	onClose: () => void
-	title: string
+	status: string
+	name: string
+	todo: Todo
 }
 
-const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
+const ToDoContent: React.FC<ToDoContentProps> = ({
+	onClose,
+	status,
+	name,
+	todo,
+}) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
+	const token_user = userAuthStore.getState().token
+	const token_project = projectAuthStore.getState().token
+	const teamId = teamAuthStore.getState().team_id
+
+	const statusMap: { [key: string]: number } = {
+		Unassigned: 0,
+		'Not started': 1,
+		'In process': 2,
+		Completed: 3,
+	}
 
 	const [data, setData] = useState({
-		startDate: '',
-		endDate: '',
-		description: '',
+		name: name,
+		startDate: todo.task_creation_date
+			? new Date(todo.task_creation_date)
+			: new Date(),
+		endDate: todo.task_end_date ? new Date(todo.task_end_date) : new Date(),
+		description: todo.task_description || '', // Aquí también ajustado para tomar el valor de task_description si existe
+		difficulty:
+			typeof todo.task_difficult === 'number' ? todo.task_difficult : 0,
+		state: statusMap[status],
 	})
+
+	useEffect(() => {
+		// Perform any initialization logic here if needed
+		console.log(todo.task_creation_date, todo.task_end_date)
+	}, [])
 
 	const handleDataInputs = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,7 +75,17 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 		setCloseButtonHovered(false)
 	}
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleStartDate = (date: Date) => {
+		const formattedDate = date.toISOString().substring(0, 10)
+		return formattedDate
+	}
+
+	const handleEndDate = (date: Date) => {
+		const formattedDate = date.toISOString().substring(0, 10)
+		return formattedDate
+	}
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
 		if (!data.startDate || !data.endDate) {
@@ -43,7 +93,34 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 			return
 		}
 
-		toast.success('Tarea creada exitosamente.')
+		try {
+			const route = `/tasks/add?project_auth_key=${token_project}&team_id=${teamId}&task_description=${
+				data.description
+			}&task_end_date=${data.endDate
+				.toISOString()
+				.slice(0, 10)}&task_deadline_date=${data.endDate
+				.toISOString()
+				.slice(0, 10)}&task_difficult=${data.difficulty}&task_state=${status}`
+			const header = {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token_user}`,
+			}
+			console.log(route)
+			const response = await apiSendData(route, header)
+			const responseData = await response.json() // Parse the JSON response
+
+			if (response.ok) {
+				console.log(responseData)
+				toast.success('Tarea creada exitosamente.')
+			} else {
+				toast.warning('Error al crear la tarea.')
+			}
+		} catch (e) {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
+		}
+
 		onClose()
 	}
 
@@ -67,7 +144,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 				}}>
 				<div className="d-flex align-items-center justify-content-between mb-4 p-2">
 					<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
-						{title}
+						{data.name}
 					</h2>
 					<div className="me-2">
 						<button
@@ -99,7 +176,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 							placeholder="Fecha de inicio"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="text"
-							value={data.startDate}
+							value={handleStartDate(data.startDate)}
 							onChange={handleDataInputs}
 							name="startDate"
 							className="form-control me-2"
@@ -114,7 +191,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 							placeholder="Fecha de fin"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="text"
-							value={data.endDate}
+							value={handleEndDate(data.endDate)}
 							onChange={handleDataInputs}
 							name="endDate"
 							className="form-control me-2"
@@ -125,7 +202,10 @@ const ToDoContent: React.FC<ToDoContentProps> = ({ onClose, title }) => {
 						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
-						<Priority />
+						<Priority
+							difficulty={data.difficulty}
+							onChange={(value) => setData({ ...data, difficulty: value })}
+						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
 						<textarea

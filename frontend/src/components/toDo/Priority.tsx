@@ -1,10 +1,18 @@
-import React, { useState } from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import React, { useEffect, useState } from 'react'
 
-const Priority: React.FC = () => {
+interface PriorityProps {
+	difficulty: number
+	onChange: (difficulty: number) => void
+}
+
+const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>('')
 	const [backgroundColor, setBackgroundColor] = useState<string>('#f8f8f8')
+
+	useEffect(() => {
+		setSelectedDifficulty(difficulties[difficulty])
+		setBackgroundColor(backgroundColors[difficulty.toString()] || '#f8f8f8')
+	}, [difficulty])
 
 	const backgroundColors: Record<string, string> = {
 		'0': '#b3e6b3', // Muy facil
@@ -23,8 +31,11 @@ const Priority: React.FC = () => {
 	]
 
 	const handleDropdownSelect = (index: number) => {
-		setSelectedDifficulty(difficulties[index])
+		const newSelectedDifficulty = difficulties[index]
+		setSelectedDifficulty(newSelectedDifficulty)
 		setBackgroundColor(backgroundColors[index.toString()] || '#f8f8f8')
+		const newIndex = difficulties.indexOf(newSelectedDifficulty)
+		onChange(newIndex)
 	}
 
 	return (
@@ -38,12 +49,12 @@ const Priority: React.FC = () => {
 					Dificultad
 				</button>
 				<ul className="dropdown-menu">
-					{difficulties.map((difficulty, index) => (
+					{difficulties.map((dif, index) => (
 						<li key={index}>
 							<a
 								className="dropdown-item"
 								onClick={() => handleDropdownSelect(index)}>
-								{difficulty}
+								{dif}
 							</a>
 						</li>
 					))}

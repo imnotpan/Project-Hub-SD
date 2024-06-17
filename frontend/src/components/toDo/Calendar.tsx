@@ -12,7 +12,7 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css' // Asegúrate de tener Bootstrap importado
 import CalendarIcon from '../../assets/CalendarIcon'
 
-const Calendar: React.FC<{ dateSelect: (date: string) => void }> = ({
+const Calendar: React.FC<{ dateSelect: (date: Date) => void }> = ({
 	dateSelect,
 }) => {
 	const [currentDate, setCurrentDate] = useState<Date>(new Date())
@@ -60,6 +60,11 @@ const Calendar: React.FC<{ dateSelect: (date: string) => void }> = ({
 		}
 	}, [])
 
+	const handleClickDay = (day: Date) => {
+		dateSelect(day)
+		setShowPopover(false)
+	}
+
 	// Divide los días en semanas
 	const weeks = []
 	for (let i = 0; i < daysInMonth.length; i += 7) {
@@ -71,12 +76,6 @@ const Calendar: React.FC<{ dateSelect: (date: string) => void }> = ({
 		dropdownToggle?.classList.toggle('show')
 	}
 
-	const handleClickDay = (day: Date) => {
-		const formattedDate = format(day, 'dd-MM-yyyy')
-		dateSelect(formattedDate)
-		setShowPopover(false)
-	}
-
 	return (
 		<div>
 			<button className="btn border-0" type="button" onClick={togglePopover}>
@@ -85,7 +84,7 @@ const Calendar: React.FC<{ dateSelect: (date: string) => void }> = ({
 			{showPopover && (
 				<div
 					ref={popoverRef}
-					className=" my-3 p-3 border border-1 border-secondary rounded-2 bg-white"
+					className="my-3 p-3 border border-1 border-secondary rounded-2 bg-white"
 					style={{ width: '300px', position: 'absolute', zIndex: 1000 }}>
 					<div className="d-flex justify-content-between align-items-center mb-3">
 						<button className="btn border-0 p-0 m-0" onClick={handlePrevMonth}>
@@ -108,18 +107,18 @@ const Calendar: React.FC<{ dateSelect: (date: string) => void }> = ({
 					</div>
 
 					<div className="row">
-						{daysOfWeek.map((day) => (
-							<div className="col text-center fw-bold p-0" key={day}>
+						{daysOfWeek.map((day, index) => (
+							<div className="col text-center fw-bold p-0" key={`day-${index}`}>
 								{day}
 							</div>
 						))}
 					</div>
-					{weeks.map((week, index) => (
-						<div className="row " key={index}>
-							{week.map((day) => (
+					{weeks.map((week, weekIndex) => (
+						<div className="row " key={`week-${weekIndex}`}>
+							{week.map((day, dayIndex) => (
 								<div
 									onClick={() => handleClickDay(day)}
-									key={day.toISOString()}
+									key={`day-${weekIndex}-${dayIndex}`}
 									className={`col p-2 text-center fw-medium ${
 										!isSameMonth(day, currentDate) ? 'text-secondary' : ''
 									} ${
