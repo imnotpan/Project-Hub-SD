@@ -2,6 +2,9 @@ import React, { DragEvent, useState, useRef, useEffect } from 'react'
 import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 import { Todo, ToDoProps } from '../../types/types'
+import { toast } from 'sonner'
+import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { apiDeleteData, apiSendData } from '../../services/apiService'
 
 const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 	color,
@@ -15,6 +18,10 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 	const [isEditing, setIsEditing] = useState(false)
 	const [isOver, setIsOver] = useState(false)
 	const titleRef = useRef<HTMLInputElement>(null)
+
+	const token_user = userAuthStore.getState().token
+	const token_project = projectAuthStore.getState().token
+	const teamId = teamAuthStore.getState().team_id
 
 	useEffect(() => {
 		if (tasks) {
@@ -36,8 +43,24 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 		setTodos([...todos, newTodoItem])
 	}
 
-	const handleDeleteTodo = (id: number) => {
+	const handleDeleteTodo = async (id: number) => {
+		try {
+			const route = `/tasks/delete?project_auth_key=${token_project}&task_id=${id}`
+			const headers = {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token_user}`,
+			}
+			const response = await apiDeleteData(route, headers)
+			if (response.ok) {
+				toast.success('Tarea eliminada exitosamente!.')
+			}
+		} catch (error) {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
+		}
 		setTodos((prevTodos) => prevTodos.filter((todo) => todo.task_id !== id))
+
 		refreshTasks() // Fetch new tasks after deleting one
 	}
 
@@ -68,12 +91,13 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 		setIsOver(false)
 	}
 
-	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+	const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsOver(false)
 		const data = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}')
 
 		if (data) {
+			//refreshTasks() // Fetch new tasks after dropping one
 			const newTodoItem: Todo = {
 				task_id: data['task_id'],
 				task_description: data['task_description'],
@@ -84,8 +108,30 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 				task_state: data['task_state'],
 				team_id: data['team_id'],
 			}
-			setTodos([...todos, newTodoItem])
-			refreshTasks() // Fetch new tasks after dropping one
+			console.log(data['task_id'])
+			// enviar a la base de datos
+			try {
+				const route = `/tasks/add?project_auth_key=${token_project}&team_id=${teamId}&task_description=${data['task_description']}&task_end_date=${data['task_end_date']}&task_deadline_date=${data['task_deadline_date']}&task_difficult=${data['task_difficult']}&task_state=${status}`
+				const header = {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token_user}`,
+				}
+				const response = await apiSendData(route, header)
+				if (response.ok) {
+					setTodos([...todos, newTodoItem])
+					handleDeleteTodo(data['task_id'])
+
+					toast.success('Tarea creada exitosamente.')
+				} else {
+					toast.warning('Error al crear la tarea.')
+				}
+			} catch (e) {
+				refreshTasks() // esto sacar por que por ahora solo es por el error que hay
+				handleDeleteTodo(data['task_id'])
+				toast.warning(
+					'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+				)
+			}
 		}
 	}
 

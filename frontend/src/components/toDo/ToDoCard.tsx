@@ -3,9 +3,7 @@ import Trash from '../../assets/trash'
 import ToDoContent from './ToDoContent'
 import Edit from '../../assets/Edit'
 import Save from '../../assets/Save'
-import { projectAuthStore, userAuthStore } from '../../authStore'
-import { toast } from 'sonner'
-import { apiDeleteData } from '../../services/apiService'
+
 import { ToDoCardProps } from '../../types/types'
 
 const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
@@ -22,26 +20,8 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 	const dragItem = useRef<HTMLDivElement>(null)
 	const [isOver, setIsOver] = useState(false)
 
-	const token_user = userAuthStore.getState().token
-	const token_project = projectAuthStore.getState().token
-
 	const handleDeleteTodo = async () => {
 		onDelete(todo.task_id)
-		try {
-			const route = `/tasks/delete?project_auth_key=${token_project}&task_id=${todo.task_id}`
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
-			}
-			const response = await apiDeleteData(route, headers)
-			if (response.ok) {
-				toast.success('Tarea eliminada exitosamente!.')
-			}
-		} catch (error) {
-			toast.warning(
-				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-			)
-		}
 	}
 
 	useEffect(() => {

@@ -94,8 +94,7 @@ const ToDoContent: React.FC<
 				toast.warning('Error al crear la tarea.')
 			}
 		} catch (e) {
-			refreshTasks()
-
+			refreshTasks() // esto sacar por que por ahora solo es por el error que hay
 			toast.warning(
 				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
 			)
