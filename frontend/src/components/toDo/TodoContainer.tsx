@@ -21,28 +21,28 @@ const ToDoContainer: React.FC = () => {
 	const token_user = userAuthStore.getState().token
 	const token_project = projectAuthStore.getState().token
 
-	useEffect(() => {
-		const fetchTodos = async () => {
-			try {
-				const route = `/team/${teamId}/tasks?project_auth_key=${token_project}`
-				const headers = {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token_user}`,
-				}
-				const response = await apiGetData(route, headers)
-				const data = await response.json()
-
-				if (response.ok) {
-					setDataToDo(data)
-					toast.success('Tareas obtenidas exitosamente!.')
-				}
-			} catch (error) {
-				toast.warning(
-					'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-				)
+	const fetchTodos = async () => {
+		try {
+			const route = `/team/${teamId}/tasks?project_auth_key=${token_project}`
+			const headers = {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token_user}`,
 			}
-		}
+			const response = await apiGetData(route, headers)
+			const data = await response.json()
 
+			if (response.ok) {
+				setDataToDo(data)
+				toast.success('Tareas obtenidas exitosamente!.')
+			}
+		} catch (error) {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
+		}
+	}
+
+	useEffect(() => {
 		fetchTodos()
 	}, [teamId, token_project, token_user])
 
@@ -58,6 +58,7 @@ const ToDoContainer: React.FC = () => {
 						title="Sin asignar"
 						tasks={filterTasksByState('Unassigned')}
 						status="Unassigned"
+						refreshTasks={fetchTodos} // Pass the fetch function
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -66,6 +67,7 @@ const ToDoContainer: React.FC = () => {
 						title="Sin iniciar"
 						tasks={filterTasksByState('Not started')}
 						status="Not started"
+						refreshTasks={fetchTodos} // Pass the fetch function
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -74,6 +76,7 @@ const ToDoContainer: React.FC = () => {
 						title="En proceso"
 						tasks={filterTasksByState('In process')}
 						status="In process"
+						refreshTasks={fetchTodos} // Pass the fetch function
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -82,6 +85,7 @@ const ToDoContainer: React.FC = () => {
 						title="Terminada"
 						tasks={filterTasksByState('Completed')}
 						status="Completed"
+						refreshTasks={fetchTodos} // Pass the fetch function
 					/>
 				</div>
 			</div>

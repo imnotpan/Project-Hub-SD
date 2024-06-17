@@ -132,12 +132,18 @@ const Calendar: React.FC<{ dateSelect: (date: Date) => void }> = ({
 							{week.map((day, dayIndex) => (
 								<div
 									onClick={() => handleClickDay(day)}
+									onMouseOver={(e) => {
+										e.currentTarget.style.transform = 'scale(1.2)'
+									}}
+									onMouseOut={(e) => {
+										e.currentTarget.style.transform = 'scale(1)'
+									}}
 									key={`day-${weekIndex}-${dayIndex}`}
-									className={`col p-2 text-center fw-medium ${
+									className={`col p-2 text-center fw-medium  ${
 										!isSameMonth(day, currentDate) ? 'text-secondary' : ''
 									} ${
 										isSameDay(day, new Date())
-											? 'text-white bg-primary rounded-5 fw-bold'
+											? 'text-white bg-primary rounded-5 '
 											: ''
 									}`}>
 									{day.getDate()}

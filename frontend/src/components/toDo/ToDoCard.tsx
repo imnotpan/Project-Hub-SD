@@ -8,7 +8,12 @@ import { toast } from 'sonner'
 import { apiDeleteData } from '../../services/apiService'
 import { ToDoCardProps } from '../../types/types'
 
-const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
+const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
+	todo,
+	onDelete,
+	status,
+	refreshTasks,
+}) => {
 	const [clickToDo, setClickToDo] = useState(false)
 	const [isDragging, setIsDragging] = useState(false)
 	const [isEditing, setIsEditing] = useState(true)
@@ -191,6 +196,7 @@ const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onDelete, status }) => {
 			</div>
 			{clickToDo && (
 				<ToDoContent
+					refreshTasks={refreshTasks}
 					name={text !== '' ? text : 'Sin nombre'}
 					onClose={() => setClickToDo(false)}
 					status={status}

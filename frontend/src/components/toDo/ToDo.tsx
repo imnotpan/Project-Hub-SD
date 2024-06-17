@@ -3,7 +3,13 @@ import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 import { Todo, ToDoProps } from '../../types/types'
 
-const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
+const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
+	color,
+	title,
+	tasks,
+	status,
+	refreshTasks,
+}) => {
 	const [todos, setTodos] = useState<Todo[]>([])
 	const [text, setText] = useState(title || 'Agrega tareas!')
 	const [isEditing, setIsEditing] = useState(false)
@@ -16,7 +22,6 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 		}
 	}, [tasks])
 
-	// Función para agregar una nueva tarea
 	const handleAddTodo = () => {
 		const newTodoItem: Todo = {
 			task_id: Date.now(),
@@ -25,61 +30,50 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 			task_end_date: '',
 			task_deadline_date: '',
 			task_difficult: 0,
-			task_state: 'Pending', // Estado por defecto al agregar nueva tarea
-			team_id: 1, // Ajustar según el equipo actual
+			task_state: 'Pending',
+			team_id: 1,
 		}
 		setTodos([...todos, newTodoItem])
 	}
 
-	// Función para eliminar una tarea por su ID
 	const handleDeleteTodo = (id: number) => {
 		setTodos((prevTodos) => prevTodos.filter((todo) => todo.task_id !== id))
+		refreshTasks() // Fetch new tasks after deleting one
 	}
 
-	// Cambiar a modo de edición para el título
 	const handleTextClick = () => {
 		setIsEditing(true)
 	}
 
-	// Manejar cambios en el texto del título
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setText(event.target.value)
 	}
 
-	// Manejar eventos de teclado para el input de título
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
 			setIsEditing(false)
 		}
 	}
 
-	// Manejar pérdida de foco del input de título
 	const handleBlur = () => {
 		setIsEditing(false)
 	}
 
-	// Manejar evento de arrastre sobre el contenedor
 	const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsOver(true)
 	}
 
-	// Manejar salida del evento de arrastre del contenedor
 	const handleDragLeave = () => {
 		setIsOver(false)
 	}
 
-	// Manejar soltar un elemento dentro del contenedor
 	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsOver(false)
-		// Asegúrate de usar 'text/plain' para obtener solo el ID como texto
-
-		//recuperar el json
 		const data = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}')
 
 		if (data) {
-			// Verifica que taskId sea un número válido
 			const newTodoItem: Todo = {
 				task_id: data['task_id'],
 				task_description: data['task_description'],
@@ -88,13 +82,13 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 				task_deadline_date: data['task_deadline_date'],
 				task_difficult: data['task_difficult'],
 				task_state: data['task_state'],
-				team_id: data['team_id'], // Ajustar según el equipo actual
+				team_id: data['team_id'],
 			}
 			setTodos([...todos, newTodoItem])
+			refreshTasks() // Fetch new tasks after dropping one
 		}
 	}
 
-	// Efecto para enfocar el input de título cuando se inicia la edición
 	useEffect(() => {
 		if (isEditing) {
 			titleRef.current?.focus()
@@ -132,7 +126,7 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 					height: '36vh',
 					backgroundColor: isOver ? 'rgba(0, 0, 0, 0.1)' : '#ffffff',
 					overflowY: 'auto',
-					marginRight: '-17px', // Ajuste para compensar la barra de desplazamiento vertical
+					marginRight: '-17px',
 					color: isOver ? '#ffffff' : '#000000',
 				}}
 				onDragOver={handleDragOver}
@@ -143,6 +137,7 @@ const ToDo: React.FC<ToDoProps> = ({ color, title, tasks, status }) => {
 						{todos.map((todo) => (
 							<li className="container" key={todo.task_id}>
 								<ToDoCard
+									refreshTasks={refreshTasks}
 									todo={todo}
 									onDelete={handleDeleteTodo}
 									status={status}

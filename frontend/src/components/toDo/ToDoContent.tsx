@@ -7,12 +7,9 @@ import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
 import { apiSendData } from '../../services/apiService'
 import { ToDoContentProps } from '../../types/types'
 
-const ToDoContent: React.FC<ToDoContentProps> = ({
-	onClose,
-	status,
-	name,
-	todo,
-}) => {
+const ToDoContent: React.FC<
+	ToDoContentProps & { refreshTasks: () => void }
+> = ({ onClose, status, name, todo, refreshTasks }) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
 	const token_user = userAuthStore.getState().token
 	const token_project = projectAuthStore.getState().token
@@ -89,12 +86,16 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 			const responseData = await response.json() // Parse the JSON response
 
 			if (response.ok) {
+				refreshTasks()
+
 				console.log(responseData)
 				toast.success('Tarea creada exitosamente.')
 			} else {
 				toast.warning('Error al crear la tarea.')
 			}
 		} catch (e) {
+			refreshTasks()
+
 			toast.warning(
 				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
 			)
