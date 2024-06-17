@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface PriorityProps {
 	difficulty: number
@@ -8,19 +8,16 @@ interface PriorityProps {
 const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>('')
 	const [backgroundColor, setBackgroundColor] = useState<string>('#f8f8f8')
+	const [dropdownOpen, setDropdownOpen] = useState<boolean>(false)
+	const dropdownRef = useRef<HTMLDivElement>(null)
 
-	useEffect(() => {
-		setSelectedDifficulty(difficulties[difficulty])
-		setBackgroundColor(backgroundColors[difficulty.toString()] || '#f8f8f8')
-	}, [difficulty])
-
-	const backgroundColors: Record<string, string> = {
-		'0': '#b3e6b3', // Muy facil
-		'1': '#80d4ff', // Facil
-		'2': '#ffd480', // Intermedio
-		'3': '#ff8080', // Dificil
-		'4': '#ff6666', // Muy Dificil
-	}
+	const backgroundColors: string[] = [
+		'#a3e2a3', // Muy facil
+		'#91c9ff', // Facil
+		'#ffc966', // Intermedio
+		'#fcb995', // Dificil
+		'#ff9999', // Muy Dificil
+	]
 
 	const difficulties: string[] = [
 		'Muy facil',
@@ -30,28 +27,58 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 		'Muy Dificil',
 	]
 
+	useEffect(() => {
+		setSelectedDifficulty(difficulties[difficulty])
+		setBackgroundColor(backgroundColors[difficulty] || '#f8f8f8')
+	}, [difficulty])
+
 	const handleDropdownSelect = (index: number) => {
-		const newSelectedDifficulty = difficulties[index]
-		setSelectedDifficulty(newSelectedDifficulty)
-		setBackgroundColor(backgroundColors[index.toString()] || '#f8f8f8')
-		const newIndex = difficulties.indexOf(newSelectedDifficulty)
-		onChange(newIndex)
+		setSelectedDifficulty(difficulties[index])
+		setBackgroundColor(backgroundColors[index] || '#f8f8f8')
+		onChange(index) // Aquí pasamos el índice seleccionado a la función onChange
+		setDropdownOpen(false) // Cerrar el menú después de seleccionar
+	}
+
+	const handleClickOutside = (event: MouseEvent) => {
+		if (
+			dropdownRef.current &&
+			!dropdownRef.current.contains(event.target as Node)
+		) {
+			setDropdownOpen(false)
+		}
+	}
+
+	useEffect(() => {
+		if (dropdownOpen) {
+			document.addEventListener('click', handleClickOutside)
+		} else {
+			document.removeEventListener('click', handleClickOutside)
+		}
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside)
+		}
+	}, [dropdownOpen])
+
+	const toggleDropdown = () => {
+		setDropdownOpen(!dropdownOpen)
 	}
 
 	return (
 		<div className="mb-3 d-flex align-items-center">
-			<div className="dropdown">
+			<div className="dropdown" ref={dropdownRef}>
 				<button
 					className="btn btn-secondary dropdown-toggle"
 					type="button"
-					data-bs-toggle="dropdown"
-					aria-expanded="false">
+					aria-expanded={dropdownOpen}
+					onClick={toggleDropdown}>
 					Dificultad
 				</button>
-				<ul className="dropdown-menu">
+				<ul className={`dropdown-menu${dropdownOpen ? ' show' : ''}`}>
 					{difficulties.map((dif, index) => (
 						<li key={index}>
 							<a
+								href="#!"
 								className="dropdown-item"
 								onClick={() => handleDropdownSelect(index)}>
 								{dif}
@@ -71,7 +98,7 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 					type="text"
 					className="form-control text-center"
 					value={selectedDifficulty}
-					readOnly
+					disabled
 				/>
 			</div>
 		</div>

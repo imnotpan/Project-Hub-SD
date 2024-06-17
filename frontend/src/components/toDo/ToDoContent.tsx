@@ -160,7 +160,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 							onChange={handleDataInputs}
 							name="startDate"
 							className="form-control me-2"
-							readOnly
+							disabled
 						/>
 						<Calendar
 							dateSelect={(date) => setData({ ...data, startDate: date })}
@@ -175,7 +175,7 @@ const ToDoContent: React.FC<ToDoContentProps> = ({
 							onChange={handleDataInputs}
 							name="endDate"
 							className="form-control me-2"
-							readOnly
+							disabled
 						/>
 						<Calendar
 							dateSelect={(date) => setData({ ...data, endDate: date })}

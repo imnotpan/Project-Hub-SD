@@ -13,8 +13,6 @@ const NavigationBar: React.FC = () => {
 
 	const navRef = useRef<HTMLDivElement>(null)
 
-	const toggleMenu = () => setIsOpen(!isOpen)
-
 	const logout = () => {
 		setIsOpen(false)
 		const authState = userAuthStore.getState()
@@ -119,7 +117,7 @@ const NavigationBar: React.FC = () => {
 				<NavButton
 					route="/login"
 					text="Iniciar sesión"
-					clickEvent={toggleMenu}
+					clickEvent={() => setIsOpen(false)}
 				/>
 			)
 		}
@@ -147,7 +145,10 @@ const NavigationBar: React.FC = () => {
 			}}
 			ref={navRef}>
 			<div className="container">
-				<button className="navbar-toggler" type="button" onClick={toggleMenu}>
+				<button
+					className="navbar-toggler"
+					type="button"
+					onClick={() => setIsOpen(!isOpen)}>
 					<Menu color={mode === 'light' ? '#000' : '#fff'} size="40" />
 				</button>
 

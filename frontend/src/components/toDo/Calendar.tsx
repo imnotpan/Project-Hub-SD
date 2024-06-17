@@ -78,7 +78,21 @@ const Calendar: React.FC<{ dateSelect: (date: Date) => void }> = ({
 
 	return (
 		<div>
-			<button className="btn border-0" type="button" onClick={togglePopover}>
+			<button
+				className="btn border-0"
+				type="button"
+				onClick={togglePopover}
+				style={{
+					transition: 'all 0.3s ease-in-out',
+				}}
+				onMouseOver={(e) => {
+					e.currentTarget.style.transform = 'scale(1.1)'
+					e.currentTarget.style.color = '#4CD9D7'
+				}}
+				onMouseOut={(e) => {
+					e.currentTarget.style.transform = 'scale(1)'
+					e.currentTarget.style.color = '#333'
+				}}>
 				<CalendarIcon size="36" color="" />
 			</button>
 			{showPopover && (
