@@ -181,8 +181,9 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 				<div className="col-md p-0">
 					<ul className="p-0 list-unstyled">
 						{todos.map((todo) => (
-							<li className="container" key={todo.task_id}>
+							<li className="container " key={todo.task_id}>
 								<ToDoCard
+									color={color}
 									refreshTasks={refreshTasks}
 									todo={todo}
 									onDelete={handleDeleteTodo}

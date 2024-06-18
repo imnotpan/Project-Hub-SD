@@ -5,13 +5,11 @@ import Edit from '../../assets/Edit'
 import Save from '../../assets/Save'
 
 import { ToDoCardProps } from '../../types/types'
+import Close from '../../assets/Close'
 
-const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
-	todo,
-	onDelete,
-	status,
-	refreshTasks,
-}) => {
+const ToDoCard: React.FC<
+	ToDoCardProps & { refreshTasks: () => void; color: string }
+> = ({ todo, onDelete, status, refreshTasks, color }) => {
 	const [clickToDo, setClickToDo] = useState(false)
 	const [isDragging, setIsDragging] = useState(false)
 	const [isEditing, setIsEditing] = useState(true)
@@ -19,6 +17,10 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 	const inputRef = useRef<HTMLInputElement>(null)
 	const dragItem = useRef<HTMLDivElement>(null)
 	const [isOver, setIsOver] = useState(false)
+
+	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
+	const [hoverEdit, setHoverEdit] = useState(false)
+	const [saveButton, setSaveButton] = useState(false)
 
 	const handleDeleteTodo = async () => {
 		onDelete(todo.task_id)
@@ -75,6 +77,7 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 				style={{
 					backgroundColor: '#fff',
 					border: '1px solid #ddd',
+					borderColor: color,
 					transition: 'background-color 0.2s',
 					boxShadow: isOver ? '0 0 5px rgba(0, 0, 0, 0.2)' : 'none',
 				}}
@@ -93,7 +96,7 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 							<input
 								ref={inputRef}
 								type="text"
-								className="form-control p-0 fs-5 px-1"
+								className="form-control p-0 fs-5 px-1 "
 								value={text}
 								onChange={handleTextChange}
 								onBlur={handleBlur}
@@ -109,15 +112,18 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 								}}
 							/>
 						) : (
-							<div className="fs-5">
+							<div
+								className={`fs-5 ${
+									status === 'Completed' ? 'text-decoration-line-through' : ''
+								}`}>
 								{text.length > 17
 									? text.slice(0, 16) + '...'
-									: text || 'Sin nombre'}
+									: text || 'Tarea sin nombre'}
 							</div>
 						)}
 					</div>
-					<div className="col-md-1 p-0">
-						<button
+					<div className="col-md-1 p-0 me-2">
+						{/* <button
 							className={`border-0 p-0 bg-transparent ${
 								isEditing ? 'd-none' : ''
 							}`}
@@ -134,28 +140,68 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 								e.currentTarget.style.color = '#333'
 							}}>
 							<Edit size="28" color="" />
+						</button> */}
+						<button
+							className={`border-0 rounded-5 p-0 me-2 ${
+								isEditing ? 'd-none' : ''
+							}`}
+							onClick={handleEdit}
+							style={{
+								backgroundColor: '#F3D32F',
+								transition: 'transform 0.3s ease-in-out',
+								color: hoverEdit ? '#000' : '#F3D32F',
+								width: '26px',
+								height: '26px',
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								transform: hoverEdit ? 'scale(1.1)' : 'scale(1)',
+							}}
+							onMouseOver={() => setHoverEdit(true)}
+							onMouseLeave={() => setHoverEdit(false)}>
+							<Edit size="22" color="" />
 						</button>
 						{isEditing && (
-							<button
-								className="border-0 p-0 bg-transparent"
-								onClick={handleSave}
-								onMouseOver={(e) => {
-									e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
-									e.currentTarget.style.transition = 'transform 0.2s'
-									e.currentTarget.style.cursor = 'pointer'
-									e.currentTarget.style.color = '#4CD9D7'
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.transform = 'scale(1)'
-									e.currentTarget.style.transition = 'transform 0.2s'
-									e.currentTarget.style.color = '#333'
-								}}>
-								<Save size="28" color="" />
-							</button>
+							<>
+								{/* <button
+									className="border-0 p-0 bg-transparent"
+									onClick={handleSave}
+									onMouseOver={(e) => {
+										e.currentTarget.style.transform = 'scale(1.1) rotate(10deg)'
+										e.currentTarget.style.transition = 'transform 0.2s'
+										e.currentTarget.style.cursor = 'pointer'
+										e.currentTarget.style.color = '#4CD9D7'
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'scale(1)'
+										e.currentTarget.style.transition = 'transform 0.2s'
+										e.currentTarget.style.color = '#333'
+									}}>
+									<Save size="28" color="" />
+								</button> */}
+								<button
+									className="border-0 p-0 rounded-5 me-2"
+									onClick={handleSave}
+									style={{
+										backgroundColor: '#4CD964',
+										transition: 'transform 0.3s ease-in-out',
+										color: saveButton ? '#000' : '#4CD964',
+										width: '26px',
+										height: '26px',
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										transform: saveButton ? 'scale(1.1)' : 'scale(1)',
+									}}
+									onMouseOver={() => setSaveButton(true)}
+									onMouseLeave={() => setSaveButton(false)}>
+									<Save size="22" color="" />
+								</button>
+							</>
 						)}
 					</div>
 					<div className="col-md-2 p-0">
-						<button
+						{/* <button
 							className="border-0 p-0 bg-transparent"
 							onClick={handleDeleteTodo}
 							onMouseOver={(e) => {
@@ -170,14 +216,35 @@ const ToDoCard: React.FC<ToDoCardProps & { refreshTasks: () => void }> = ({
 								e.currentTarget.style.color = '#333'
 							}}>
 							<Trash size="28" color="" />
+						</button> */}
+						<button
+							className="border-0 rounded-5"
+							style={{
+								backgroundColor: '#FF5F56',
+								transition: 'all 0.3s ease-in-out',
+								width: '26px',
+								height: '26px',
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								transform: closeButtonHovered ? 'scale(1.1)' : 'scale(1)',
+							}}
+							onMouseOver={() => setCloseButtonHovered(true)}
+							onMouseLeave={() => setCloseButtonHovered(false)}
+							onClick={handleDeleteTodo}>
+							<Close
+								size="26"
+								color={closeButtonHovered ? '#000' : '#FF5F56'}
+							/>
 						</button>
 					</div>
 				</div>
 			</div>
 			{clickToDo && (
 				<ToDoContent
+					changeText={setText}
 					refreshTasks={refreshTasks}
-					name={text !== '' ? text : 'Sin nombre'}
+					name={text !== '' ? text : ''}
 					onClose={() => setClickToDo(false)}
 					status={status}
 					todo={todo}

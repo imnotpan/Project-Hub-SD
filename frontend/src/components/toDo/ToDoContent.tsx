@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
@@ -6,14 +6,20 @@ import Priority from './Priority'
 import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
 import { apiSendData } from '../../services/apiService'
 import { ToDoContentProps } from '../../types/types'
+import Edit from '../../assets/Edit'
 
 const ToDoContent: React.FC<
-	ToDoContentProps & { refreshTasks: () => void }
-> = ({ onClose, status, name, todo, refreshTasks }) => {
+	ToDoContentProps & {
+		refreshTasks: () => void
+		changeText: (text: string) => void
+	}
+> = ({ onClose, status, name, todo, refreshTasks, changeText }) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
 	const token_user = userAuthStore.getState().token
 	const token_project = projectAuthStore.getState().token
 	const teamId = teamAuthStore.getState().team_id
+	const [isEditing, setIsEditing] = useState(false)
+	const [hoverEdit, setHoverEdit] = useState(false)
 
 	const statusMap: { [key: string]: number } = {
 		Unassigned: 0,
@@ -42,15 +48,6 @@ const ToDoContent: React.FC<
 			[e.target.name]: e.target.value,
 		})
 	}
-
-	const handleMouseOver = () => {
-		setCloseButtonHovered(true)
-	}
-
-	const handleMouseLeave = () => {
-		setCloseButtonHovered(false)
-	}
-
 	const handleStartDate = (date: Date) => {
 		const formattedDate = date.toISOString().substring(0, 10)
 		return formattedDate
@@ -64,7 +61,12 @@ const ToDoContent: React.FC<
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		if (!data.startDate || !data.endDate) {
+		if (
+			!data.startDate ||
+			!data.endDate ||
+			!data.description ||
+			!data.difficulty
+		) {
 			toast.warning('Por favor, completa todas las fechas.')
 			return
 		}
@@ -103,6 +105,30 @@ const ToDoContent: React.FC<
 		onClose()
 	}
 
+	const handleEdit = () => {
+		setIsEditing(!isEditing)
+	}
+
+	const inputRef = useRef<HTMLInputElement>(null)
+
+	useEffect(() => {
+		if (isEditing && inputRef.current) {
+			inputRef.current.focus()
+		}
+	}, [isEditing])
+
+	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		changeText(event.target.value)
+		console.log(event.target.value)
+	}
+	const handleBlur = () => {
+		handleSave()
+	}
+	const handleSave = () => {
+		// Aquí podrías enviar la actualización del texto a través de una función prop si es necesario
+		setIsEditing(false)
+	}
+
 	return (
 		<div
 			className="d-flex justify-content-center align-items-center position-fixed"
@@ -123,10 +149,52 @@ const ToDoContent: React.FC<
 					boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
 				}}>
 				<div className="d-flex align-items-center justify-content-between mb-4 p-2">
-					<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
-						{data.name}
-					</h2>
-					<div className="me-2">
+					{isEditing ? (
+						<input
+							ref={inputRef}
+							type="text"
+							className="form-control p-0 fs-5 pe-2 me-2"
+							value={name}
+							onChange={handleTextChange}
+							onBlur={handleBlur}
+							autoFocus
+							style={{
+								cursor: 'pointer',
+								outline: 'none',
+								color: '#333',
+								backgroundColor: 'transparent',
+								border: 'none',
+								boxShadow: 'none',
+							}}
+						/>
+					) : (
+						<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
+							{name?.length > 0
+								? name.length > 17
+									? name.slice(0, 17) + '...'
+									: name
+								: 'Tarea sin nombre'}
+						</h2>
+					)}
+					<div className=" d-flex">
+						<button
+							className="border-0 rounded-5 p-0 me-2"
+							onClick={handleEdit}
+							style={{
+								backgroundColor: '#F3D32F',
+								transition: 'transform 0.3s ease-in-out',
+								color: hoverEdit ? '#000' : '#F3D32F',
+								width: '26px',
+								height: '26px',
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								transform: hoverEdit ? 'scale(1.1)' : 'scale(1)',
+							}}
+							onMouseOver={() => setHoverEdit(true)}
+							onMouseLeave={() => setHoverEdit(false)}>
+							<Edit size="22" color="" />
+						</button>
 						<button
 							className="border-0 rounded-5"
 							style={{
@@ -139,8 +207,8 @@ const ToDoContent: React.FC<
 								alignItems: 'center',
 								transform: closeButtonHovered ? 'scale(1.1)' : 'scale(1)',
 							}}
-							onMouseOver={handleMouseOver}
-							onMouseLeave={handleMouseLeave}
+							onMouseOver={() => setCloseButtonHovered(true)}
+							onMouseLeave={() => setCloseButtonHovered(false)}
 							onClick={onClose}>
 							<Close
 								size="26"
