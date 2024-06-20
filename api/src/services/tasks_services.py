@@ -24,11 +24,13 @@ async def get_tasks_from_team(team_id): # Obtiene las tareas de un equipo segund
 
 async def add_task(task_data): # Añade una tarea a la base de datos segun los datos recibidos
     cursor = db.conn.cursor()
+
     add_task_query = f"""
             INSERT INTO task (task_name, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
             RETURNING task_name, task_id, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id;
         """
+        
     add_task_query_parameters = ( 
                             task_data.task_name,
                             task_data.task_description,
@@ -46,7 +48,6 @@ async def add_task(task_data): # Añade una tarea a la base de datos segun los d
     db.conn.commit()
     return task_info_dict
 
-
 async def update_task(task_data): 
     cursor = db.conn.cursor()
     
@@ -56,7 +57,6 @@ async def update_task(task_data):
     if task_data.task_name is not None:
         update_columns.append("task_name = %s")
         update_values.append(task_data.task_name)
-
 
     if task_data.task_description is not None:
         update_columns.append("task_description = %s")
@@ -107,16 +107,26 @@ async def delete_task(task_id): # Elimina una tarea de la base de datos segun su
     db.conn.commit()
 
 async def send_task_to_queue(task_data, project_id, tag): # Añade una tarea a la cola, usando rabbitmq
+    task_end_date = None
+    task_deadline_date = None
+    
+    if task_data.get('task_end_date') is not None:
+        task_end_date = task_data['task_end_date'].isoformat()
+
+    if task_data.get('task_deadline_date') is not None:
+        task_deadline_date = task_data['task_deadline_date'].isoformat()
+
     content_message_broker = {
-                                "task_id": task_data['task_id'],
-                              "task_description":task_data['task_description'],
-                                "task_end_date":task_data['task_end_date'].isoformat(),
-                                "task_deadline_date":task_data['task_deadline_date'].isoformat(),
-                                "task_difficult":task_data['task_difficult'],
-                                "task_state":task_data['task_state'],
-                                "team_id":task_data['team_id'],
-                                "task_data": tag
-                              }
+        "task_id": task_data['task_id'],
+        "task_description": task_data['task_description'],
+        "task_end_date": task_end_date,
+        "task_deadline_date": task_deadline_date,
+        "task_difficult": task_data['task_difficult'],
+        "task_state": task_data['task_state'],
+        "team_id": task_data['team_id'],
+        "task_data": tag
+    }
+    
     body = json.dumps(content_message_broker)
     rabbit_controller.send_message(body.encode(), f"task_{project_id}_{task_data['team_id']}")
     
