@@ -155,10 +155,10 @@ async def get_all_projects_from_user(user_id): # Obtiene todos los proyectos de 
 async def add_co_owners(project_id, user_id):
     cursor = db.conn.cursor()
     add_co_owner = f"""
-        INSERT INTO project_co_owners (project_id, user_id)
-        VALUES (%s, %s);
+        INSERT INTO app_user_profile_project (app_user_profile_type, app_user_id, project_id)
+        VALUES (2, %s, %s);
     """
-    add_co_owner_parameters = (project_id, user_id)
+    add_co_owner_parameters = (user_id, project_id )
     cursor.execute(add_co_owner, add_co_owner_parameters)
     db.conn.commit()
     return {"project_id": project_id}
@@ -187,13 +187,13 @@ async def project_owner_verify(project_id, user_id):
 async def project_main_owner_verify(project_id, user_id):
     cursor = db.conn.cursor()
     verify_owner = f"""
-        SELECT p.project_owner_id, p.project_id, co.project_id, co.user_id
+        SELECT p.project_owner_id, p.project_id, aupp.project_id, aupp.app_user_id
         FROM 
             project p
         FULL JOIN
-            app_user_profile_project co
+            app_user_profile_project aupp
         ON 
-            p.project_id = co.project_id
+            p.project_id = aupp.project_id
         WHERE
             p.project_owner_id = {user_id} and p.project_id = '{project_id}' 
     """
@@ -210,8 +210,8 @@ async def project_main_owner_verify(project_id, user_id):
 async def delete_co_owner(project_id, user_id):
     cursor = db.conn.cursor()
     delete_owner = f"""
-        DELETE FROM project_co_owners
-        WHERE project_id = '{project_id}' AND user_id = {user_id}
+        DELETE FROM app_user_profile_project
+        WHERE project_id = '{project_id}' AND app_user_id = {user_id}
     """
     
     print(delete_owner)
