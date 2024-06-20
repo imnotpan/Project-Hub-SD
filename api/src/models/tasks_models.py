@@ -22,4 +22,5 @@ class TaskUpdateModel(BaseModel): # Modelo para la actualización de tareas (PUT
     
 class TaskDestroyModel(BaseModel): # Modelo para la eliminación de tareas (DELETE /task)    
     project_auth_key: str
+    team_id: int
     task_id: int

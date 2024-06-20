@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS project(
     FOREIGN KEY (project_owner_id) REFERENCES app_user(app_user_id)
 );
 
+CREATE TABLE IF NOT EXISTS project_co_owners(
+    project_co_owners_id SERIAL PRIMARY KEY,
+    project_id VARCHAR(255),
+    user_id INT,
+
+    FOREIGN KEY (project_id) REFERENCES project(project_id),
+    FOREIGN KEY (user_id) REFERENCES app_user(app_user_id)
+)
+
 CREATE TABLE IF NOT EXISTS app_user_profile_project(
     app_user_profile_id SERIAL PRIMARY KEY,
     app_user_profile_type VARCHAR(255),
@@ -42,15 +51,30 @@ CREATE TABLE IF NOT EXISTS team(
     FOREIGN KEY (project_id) REFERENCES project(project_id)
 );
 
+CREATE TABLE IF NOT EXISTS user_type(
+    user_type_id SERIAL PRIMARY KEY,
+    user_type VARCHAR(255)
+)
+
+INSERT INTO user_type(user_type)
+VALUES
+    ('Normal'),
+    ('Owner'),
+    ('Leader');
+
 CREATE TABLE IF NOT EXISTS app_user_team(
     app_user_team_id SERIAL PRIMARY KEY,
     team_id INT,
     app_user_id INT,
     user_status VARCHAR(50) NOT NULL DEFAULT 'inactive',
+    user_type INT,
 
+    FOREIGN KEY (user_type) REFERENCES user_type(user_type_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
 );
+
+
 
 CREATE TABLE IF NOT EXISTS message_state(
     message_state_id SERIAL PRIMARY KEY,
@@ -79,11 +103,13 @@ CREATE TABLE IF NOT EXISTS chat_message(
     message_date DATE,
     message_content VARCHAR(255),
     
+    sent_by INT,
     message_state_id INT,
     message_type_id INT,
-    app_user_team_id INT,
+    app_user_team_id INT NULL,
     user_to_send INT NULL,
 
+    FOREIGN KEY (sent_by) REFERENCES app_user(app_user_id),
     FOREIGN KEY (message_state_id) REFERENCES message_state(message_state_id),
     FOREIGN KEY (message_type_id) REFERENCES message_type(message_type_id),
     FOREIGN KEY (app_user_team_id) REFERENCES app_user_team(app_user_team_id),
@@ -120,3 +146,4 @@ CREATE TABLE IF NOT EXISTS log(
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id),
     FOREIGN KEY (action_id) REFERENCES log_action(action_id)
 );
+

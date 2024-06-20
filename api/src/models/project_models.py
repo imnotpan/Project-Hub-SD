@@ -11,3 +11,8 @@ class ProjectSearchModel(BaseModel): # Modelo para la búsqueda de proyectos (GE
     
 class ProjectTeamsModel(BaseModel): # Modelo para la obtención de equipos de un proyecto (GET /project/teams)
     project_auth_key: str
+    
+class ProjectOwnerModel(BaseModel):
+    project_auth_key: str
+    user_email: str
+    
