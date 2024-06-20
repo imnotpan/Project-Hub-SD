@@ -3,108 +3,126 @@ import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 
 interface Todo {
-  id: number
-  completed: boolean
+	id: number
+	completed: boolean
 }
 
-const ToDo: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [text, setText] = useState('Agrega tareas!')
-  const [isEditing, setIsEditing] = useState(false)
-  const [isOver, setIsOver] = useState(false)
+type ToDoProps = {
+	color: string
+	title: string
+}
 
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setIsOver(true)
-  }
+const ToDo: React.FC<ToDoProps> = ({ color, title }) => {
+	const [todos, setTodos] = useState<Todo[]>([])
+	const [text, setText] = useState(title || 'Agrega tareas!')
+	const [isEditing, setIsEditing] = useState(false)
+	const [isOver, setIsOver] = useState(false)
 
-  const handleDragLeave = () => {
-    setIsOver(false)
-  }
+	const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+		event.preventDefault()
+		setIsOver(true)
+	}
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setIsOver(false)
-    const data = event.dataTransfer?.getData('text/plain')
-    if (data === 'DraggableItem') {
-      // Realizar acciones necesarias al soltar el elemento
-      console.log('Elemento soltado en el área.')
-    }
-  }
-  const handleAddTodo = () => {
-    const newTodoItem: Todo = {
-      id: Date.now(),
-      completed: false,
-    }
+	const handleDragLeave = () => {
+		setIsOver(false)
+	}
 
-    setTodos([...todos, newTodoItem])
-  }
+	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+		event.preventDefault()
+		setIsOver(false)
+		const data = event.dataTransfer?.getData('text/plain')
+		if (data === 'DraggableItem') {
+			// Realizar acciones necesarias al soltar el elemento
+			console.log('Elemento soltado en el área.')
+		}
+	}
+	const handleAddTodo = () => {
+		const newTodoItem: Todo = {
+			id: Date.now(),
+			completed: false,
+		}
 
-  const handleDeleteTodo = (id: number) => {
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
-  }
+		setTodos([...todos, newTodoItem])
+	}
 
-  const handleTextClick = () => {
-    setIsEditing(true)
-  }
+	const handleDeleteTodo = (id: number) => {
+		setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
+	}
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value)
-  }
+	const handleTextClick = () => {
+		setIsEditing(true)
+	}
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      setIsEditing(false)
-    }
-  }
+	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setText(event.target.value)
+	}
 
-  return (
-    <>
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className='border'
-        style={{
-          height: '40vh',
-          border: '2px #000',
-          borderRadius: '7px',
-          backgroundColor: isOver ? 'rgba(0, 0, 0, 0.1)' : '#ffffff',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          color: isOver ? '#ffffff' : '#000000',
-        }}>
-        <div className="row justify-content-center text-center ">
-          <div className="col-md m-2 p-2">
-            <div onClick={handleTextClick} className="mb-2 p-2 ">
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  value={text}
-                  onChange={handleTextChange}
-                  onKeyDown={handleKeyDown}
-                  autoFocus
-                />
-              ) : (
-                <div>{text}</div>
-              )}
-            </div>
-            <ul style={{ listStyleType: 'none', padding: 0 }} className="p-0">
-              {todos.map((todo) => (
-                <li className="container " key={todo.id}>
-                  <ToDoCard id={todo.id} onDelete={handleDeleteTodo} />
-                </li>
-              ))}
-            </ul>
-            <button className="btn p-2 m-2 " onClick={handleAddTodo}>
-              <Add size="36" color={isOver ? '#ffffff' : '#323232'} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  )
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			setIsEditing(false)
+		}
+	}
+
+	return (
+		<div className="">
+			<div onClick={handleTextClick} className="mb-2 p-2 ">
+				{isEditing ? (
+					<input
+						type="text"
+						className="form-control"
+						value={text}
+						onChange={handleTextChange}
+						onKeyDown={handleKeyDown}
+						autoFocus
+					/>
+				) : (
+					<div
+						className=" fs-5 rounded-2 "
+						style={{
+							backgroundColor: color,
+						}}>
+						{text}
+					</div>
+				)}
+			</div>
+			<div
+				className="row"
+				style={{
+					height: '38vh',
+					backgroundColor: isOver ? 'rgba(0, 0, 0, 0.1)' : '#ffffff',
+					overflowY: 'auto',
+					overflowX: 'hidden',
+					color: isOver ? '#ffffff' : '#000000',
+				}}
+				onDragOver={handleDragOver}
+				onDragLeave={handleDragLeave}
+				onDrop={handleDrop}>
+				<div className="col-md m-2 p-0">
+					<ul className="p-0 list-unstyled">
+						{todos.map((todo) => (
+							<li className="container " key={todo.id}>
+								<ToDoCard id={todo.id} onDelete={handleDeleteTodo} />
+							</li>
+						))}
+					</ul>
+					<button
+						className="border-0 p-0 bg-transparent "
+						onClick={handleAddTodo}
+						onMouseOver={(e) => (
+							(e.currentTarget.style.transform = 'scale(1.1)'),
+							(e.currentTarget.style.transition = 'transform 0.2s'),
+							(e.currentTarget.style.cursor = 'pointer')
+						)}
+						onMouseLeave={(e) => (
+							(e.currentTarget.style.transform = 'scale(1)'),
+							(e.currentTarget.style.transition = 'transform 0.2s')
+						)}>
+						<Add size="36" color={isOver ? '#ffffff' : '#323232'} />
+					</button>
+				</div>
+			</div>
+		</div>
+	)
 }
 
 export default ToDo
