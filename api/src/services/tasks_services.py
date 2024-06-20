@@ -3,9 +3,6 @@ from datetime import datetime
 import src.controllers.db_controller as db
 from src.controllers.rabbit_controller import rabbit_controller 
 
-
-
-
 async def get_tasks_from_team(team_id): # Obtiene las tareas de un equipo segundo su id
     cursor = db.conn.cursor()
     get_tasks_messages_query = f"""
@@ -28,12 +25,12 @@ async def get_tasks_from_team(team_id): # Obtiene las tareas de un equipo segund
 async def add_task(task_data): # Añade una tarea a la base de datos segun los datos recibidos
     cursor = db.conn.cursor()
     add_task_query = f"""
-            INSERT INTO task (task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s) 
-            RETURNING task_id, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id;
-
+            INSERT INTO task (task_name, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
+            RETURNING task_name, task_id, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id;
         """
     add_task_query_parameters = ( 
+                            task_data.task_name,
                             task_data.task_description,
                             datetime.now(),
                             task_data.task_end_date,
@@ -49,27 +46,51 @@ async def add_task(task_data): # Añade una tarea a la base de datos segun los d
     db.conn.commit()
     return task_info_dict
 
-async def update_task(task_data): # Actualiza una tarea en la base de datos segun los datos recibidos
+
+async def update_task(task_data): 
     cursor = db.conn.cursor()
+    
+    update_columns = []
+    update_values = []
+    
+    if task_data.task_name is not None:
+        update_columns.append("task_name = %s")
+        update_values.append(task_data.task_name)
+
+
+    if task_data.task_description is not None:
+        update_columns.append("task_description = %s")
+        update_values.append(task_data.task_description)
+
+    if task_data.task_end_date is not None:
+        update_columns.append("task_end_date = %s")
+        update_values.append(task_data.task_end_date)
+
+    if task_data.task_deadline_date is not None:
+        update_columns.append("task_deadline_date = %s")
+        update_values.append(task_data.task_deadline_date)
+
+    if task_data.task_difficult is not None:
+        update_columns.append("task_difficult = %s")
+        update_values.append(task_data.task_difficult)
+
+    if task_data.task_state is not None:
+        update_columns.append("task_state = %s")
+        update_values.append(task_data.task_state)
+
+    if not update_columns:
+        raise ValueError("No data provided to update")
+
     update_task_query = f"""
         UPDATE task
-        SET task_description = %s,
-            task_end_date = %s,
-            task_deadline_date = %s,
-            task_difficult = %s,
-            task_state = %s
+        SET {', '.join(update_columns)}
         WHERE task_id = %s
         RETURNING task_id, task_description, task_creation_date, task_end_date, task_deadline_date, task_difficult, task_state, team_id;
         """
-    update_task_query_parameters = ( 
-                            task_data.task_description,
-                            task_data.task_end_date,
-                            task_data.task_deadline_date,
-                            task_data.task_difficult,
-                            task_data.task_state,
-                            task_data.task_id
-                            )
-    cursor.execute(update_task_query, update_task_query_parameters)
+    
+    update_values.append(task_data.task_id)
+
+    cursor.execute(update_task_query, update_values)
     task_info = cursor.fetchone()
     column_names = [desc[0] for desc in cursor.description]
     task_info_dict = dict(zip(column_names, task_info))
