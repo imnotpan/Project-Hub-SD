@@ -27,7 +27,7 @@ async def create_project(
 ):
     project_id = await project_services.create_project(project_data, user_data)
     return await project_services.set_profile_in_project(
-        project_id["project_id"], user_data["app_user_id"], "admin"
+        project_id["project_id"], user_data["app_user_id"], 2
     )
     
 @project_router.post("/add/owner", tags=["project"])

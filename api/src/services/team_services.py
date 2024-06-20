@@ -48,7 +48,7 @@ async def create_team(team_data, project_id): # Registra un equipo en la base de
 async def get_all_users_team(team_id): # Obtiene todos los usuarios de un equipo segun su id
     cursor = db.conn.cursor()
     get_user_query = f"""
-        SELECT au.app_user_id, au.app_user_name, au.app_user_email, au.app_user_last_session, aut.user_status
+        SELECT au.app_user_id, au.app_user_name, au.app_user_email, au.app_user_last_session, aut.user_status, aut.user_type
         FROM app_user_team aut
         JOIN app_user au ON aut.app_user_id = au.app_user_id
         WHERE aut.team_id = %s AND aut.user_status = %s;
@@ -110,10 +110,15 @@ async def join_team(user_id, team_id): # Une un usuario a un equipo
             
             UPDATE app_user_team
             SET user_status = 'active'
-            WHERE app_user_id = {user_id} AND team_id = {team_id};
+            WHERE app_user_id = {user_id} AND team_id = {team_id} 
+            RETURNING user_status, user_type;
+            
         """
         update_user_query_parameters = ( team_id, user_id, team_id )
         cursor.execute(update_user_query)
+        task_info = cursor.fetchone()
+        column_names = [desc[0] for desc in cursor.description]
+        task_info_dict = dict(zip(column_names, task_info))
     else:
         insert_user_query = f"""
             UPDATE app_user_team
@@ -121,12 +126,17 @@ async def join_team(user_id, team_id): # Une un usuario a un equipo
             WHERE app_user_id = {user_id};
             
             INSERT INTO app_user_team (team_id, app_user_id, user_status, user_type)
-            VALUES (%s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s)
+            RETURNING user_status, user_type;
         """
         insert_user_query_parameters = (team_id, user_id, "active", 0)
         cursor.execute(insert_user_query, insert_user_query_parameters)
-
+        task_info = cursor.fetchone()
+        column_names = [desc[0] for desc in cursor.description]
+        task_info_dict = dict(zip(column_names, task_info))
+    
     db.conn.commit()
+    return task_info_dict
 
 
 async def disconnect_team(user_id, team_id): # Desconecta un usuario de un equipo 
@@ -141,23 +151,27 @@ async def disconnect_team(user_id, team_id): # Desconecta un usuario de un equip
         update_user_query = """
             UPDATE app_user_team
             SET user_status = %s
-            WHERE app_user_id = %s AND team_id = %s;
+            WHERE app_user_id = %s AND team_id = %s
+            RETURNING user_status, user_type;
         """
         update_user_query_parameters = ("inactive", user_id, team_id)
         cursor.execute(update_user_query, update_user_query_parameters)
-
+        task_info = cursor.fetchone()
+        column_names = [desc[0] for desc in cursor.description]
+        task_info_dict = dict(zip(column_names, task_info))
     db.conn.commit()
 
+    return task_info_dict
 
-async def send_user_status(user, team_id, project_id, status): # Envía el estado de un usuario a un equipo
+async def send_user_status(user, team_id, project_id, status, user_type): # Envía el estado de un usuario a un equipo
     content_message_broker = {"app_user_id": user['app_user_id'],
                               "app_user_email": user['app_user_email'],
                               "app_user_name": user['app_user_name'], 
-                              "user_status": status}
+                              "user_status": status,
+                              "user_type": user_type}
     body = json.dumps(content_message_broker)
     rabbit_controller.rabbit_controller.send_message(body.encode(), f"users_team_{team_id}")
     return content_message_broker
-
 
 async def change_user_type(user_id, team_id, user_type):
     cursor = db.conn.cursor()

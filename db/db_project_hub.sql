@@ -20,21 +20,14 @@ CREATE TABLE IF NOT EXISTS project(
     FOREIGN KEY (project_owner_id) REFERENCES app_user(app_user_id)
 );
 
-CREATE TABLE IF NOT EXISTS project_co_owners(
-    project_co_owners_id SERIAL PRIMARY KEY,
-    project_id VARCHAR(255),
-    user_id INT,
-
-    FOREIGN KEY (project_id) REFERENCES project(project_id),
-    FOREIGN KEY (user_id) REFERENCES app_user(app_user_id)
-);
 
 CREATE TABLE IF NOT EXISTS app_user_profile_project(
     app_user_profile_id SERIAL PRIMARY KEY,
-    app_user_profile_type VARCHAR(255),
+    app_user_profile_type Int,
     app_user_id INT,
     project_id VARCHAR(20),
 
+    FOREIGN KEY (app_user_profile_type) REFERENCES user_type(user_type_id),
     FOREIGN KEY (project_id) REFERENCES project(project_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
 );

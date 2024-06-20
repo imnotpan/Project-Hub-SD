@@ -166,15 +166,15 @@ async def add_co_owners(project_id, user_id):
 async def project_owner_verify(project_id, user_id):
     cursor = db.conn.cursor()
     verify_owner = f"""
-        SELECT p.project_owner_id, p.project_id, co.project_id, co.user_id
+        SELECT p.project_owner_id, p.project_id, aupp.project_id, aupp.app_user_id, aupp.app_user_profile_type
         FROM 
             project p
         FULL JOIN
-            project_co_owners co
+            app_user_profile_project aupp
         ON 
-            p.project_id = co.project_id
+            p.project_id = aupp.project_id
         WHERE
-            (co.user_id = {user_id} OR p.project_owner_id = {user_id}) and p.project_id = '{project_id}' 
+            (aupp.app_user_id = {user_id} OR p.project_owner_id = {user_id}) and p.project_id = '{project_id}' and aupp.app_user_profile_type = 2;
     """
     cursor.execute(verify_owner, )
     user_project_owner = cursor.fetchone()
@@ -191,7 +191,7 @@ async def project_main_owner_verify(project_id, user_id):
         FROM 
             project p
         FULL JOIN
-            project_co_owners co
+            app_user_profile_project co
         ON 
             p.project_id = co.project_id
         WHERE

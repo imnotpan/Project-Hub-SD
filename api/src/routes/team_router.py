@@ -26,9 +26,9 @@ async def join_to_team(
             team["team_id"], team_data.team_password, team["team_password"]
         )
 
-    await team_services.join_team(user["app_user_id"], team_data.team_id)
+    _data = await team_services.join_team(user["app_user_id"], team_data.team_id)
     return await team_services.send_user_status(
-        user, team_data.team_id, project["project_id"], "connected"
+        user, team_data.team_id, project["project_id"], "connected", _data['user_type']
     )
 
 
@@ -38,9 +38,9 @@ async def disconnect_from_team(
     team_data: team_models.TeamJoinModel = Depends(),
 ):
     project = await project_services.get_project_current(team_data.project_auth_key)
-    await team_services.disconnect_team(user["app_user_id"], team_data.team_id)
-    await team_services.send_user_status(
-        user, team_data.team_id, project["project_id"], "disconnected"
+    _data =  await team_services.disconnect_team(user["app_user_id"], team_data.team_id)
+    return await team_services.send_user_status(
+        user, team_data.team_id, project["project_id"], "disconnected", _data['user_type']
     )
 
 
@@ -54,7 +54,7 @@ async def create_team(
     if not isOwner:
         return {401, f"You can't create teams"}
     team_id = await team_services.create_team(team_data, project["project_id"])
-    await team_services.change_user_type(user["app_user_id"], team_id, 1)
+    await team_services.change_user_type(user["app_user_id"], team_id, 2)
     return {201, f"Team created in project {project['project_id']}"}
 
 
