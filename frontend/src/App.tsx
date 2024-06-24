@@ -14,46 +14,46 @@ import AboutPage from './pages/AboutPage'
 import MyProjectsPage from './pages/MyProjectsPage'
 
 const App: React.FC = () => {
-  const login = userAuthStore((state) => state.state) // Obtener el estado de autenticación del store
+	const login = userAuthStore((state) => state.state) // Obtener el estado de autenticación del store
 
-  return (
-    <div>
-      <NavigationBar />
+	return (
+		<div>
+			<NavigationBar />
 
-      <Routes>
-        <Route
+			<Routes>
+				{/*         <Route
           path="/"
           element={login ? <ProjectsPage /> : <Navigate to="/login" />}
-        />
-        <Route path="/home" element={<HomePage />} />
+        /> */}
+				<Route path="/" element={<HomePage />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/project-options"
-          element={login ? <ProjectOptionsPage /> : <Navigate to="/home" />}
-        />
-        <Route
-          path="/projects"
-          element={login ? <ProjectsPage /> : <Navigate to="/home" />}
-        />
-        <Route
-          path="/teams"
-          element={login ? <TeamsPage /> : <Navigate to="/home" />}
-        />
-        <Route
-          path="my-projects"
-          element={login ? <MyProjectsPage /> : <Navigate to="/home" />}
-        />
-        <Route
-          path="/profile"
-          element={login ? <ProfilePage /> : <Navigate to="/home" />}
-        />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </div>
-  )
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/register" element={<RegisterPage />} />
+				<Route
+					path="/project-options"
+					element={login ? <ProjectOptionsPage /> : <Navigate to="/" />}
+				/>
+				<Route
+					path="/projects"
+					element={login ? <ProjectsPage /> : <Navigate to="/" />}
+				/>
+				<Route
+					path="/teams"
+					element={login ? <TeamsPage /> : <Navigate to="/" />}
+				/>
+				<Route
+					path="my-projects"
+					element={login ? <MyProjectsPage /> : <Navigate to="/" />}
+				/>
+				<Route
+					path="/profile"
+					element={login ? <ProfilePage /> : <Navigate to="/" />}
+				/>
+				<Route path="/about" element={<AboutPage />} />
+				<Route path="*" element={<NotFoundPage />} />
+			</Routes>
+		</div>
+	)
 }
 
 export default App

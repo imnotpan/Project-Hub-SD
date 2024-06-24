@@ -109,7 +109,7 @@ const NavigationBar: React.FC = () => {
 							setIsOpen(false)
 						}}
 					/>
-					<NavButton route="/home" text="Cerrar sesión" clickEvent={logout} />
+					<NavButton route="/" text="Cerrar sesión" clickEvent={logout} />
 				</>
 			)
 		} else {
@@ -153,9 +153,9 @@ const NavigationBar: React.FC = () => {
 				</button>
 
 				<Link
-					to="/home"
+					to="/"
 					className="nav-link"
-					onClick={() => handleNavItemClick('/home')}
+					onClick={() => handleNavItemClick('/')}
 					style={{
 						fontSize: '1.4rem',
 						transition: 'all 0.3s ease',
@@ -180,7 +180,7 @@ const NavigationBar: React.FC = () => {
 						isOpen ? 'show' : ''
 					}`}>
 					<ul className="navbar-nav w-100 ps-2 ">
-						<NavItem link="/home" text="Inicio" />
+						<NavItem link="/" text="Inicio" />
 						{login && (
 							<>
 								<NavItem link="/project-options" text="Opciones de proyecto" />
