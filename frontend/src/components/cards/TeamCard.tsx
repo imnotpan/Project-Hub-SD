@@ -22,6 +22,7 @@ const TeamsCard: React.FC<TeamsCardProps> = ({ team, colorRow }) => {
 		password: '',
 	})
 	const setId = teamAuthStore((state) => state.setTeamId) // Obtén el método setToken del store
+	const setTeamName = teamAuthStore((state) => state.setTeamName) // Obtén el método setToken del store
 	const navigate = useNavigate()
 	const handleLoginTeamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setDataTeam({
@@ -53,6 +54,7 @@ const TeamsCard: React.FC<TeamsCardProps> = ({ team, colorRow }) => {
 			if (response.ok) {
 				setId(team.team_id)
 				setShowTeam(false)
+				setTeamName(team.team_name)
 				toast.success('Credenciales exitosas!.')
 				handleSubmit
 				setTimeout(() => {

@@ -14,10 +14,10 @@ project_router = APIRouter()
 )
 async def auth_project(project_data: project_models.ProjectSearchModel = Depends(),
                        user_data=Depends(auth_services.get_user_current)):
-    await project_services.project_auth(project_data.project_id, project_data.project_password)
+    data_project = await project_services.project_auth(project_data.project_id, project_data.project_password)
     token = await auth_services.create_access_token(project_data.project_id)
     isOwner = await project_services.project_owner_verify(project_data.project_id, user_data['app_user_id'])
-    data = {"status_code": 201, "access_token": token, "token_type": "bearer", "owner": isOwner}
+    data = {"status_code": 201, "access_token": token, "token_type": "bearer", "owner": isOwner, 'project_name': data_project['project_name']}
     return data
 
 @project_router.post("/create", tags=["project"]) # Ruta para el registro de proyectos

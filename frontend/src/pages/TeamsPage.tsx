@@ -21,6 +21,7 @@ const TeamsPage: React.FC = () => {
 	const token_user = userAuthStore.getState().token
 	const token_project = projectAuthStore.getState().token
 	const [sessionUsers, setSessionUsers] = useState<UserProps[]>([])
+	const team_name = teamAuthStore.getState().team_name
 
 	const fetchTeamUsers = async () => {
 		// Obtiene los usuarios del equipo
@@ -123,9 +124,10 @@ const TeamsPage: React.FC = () => {
 						</li>
 					))}
 				</ul>
-				<div className="m-1 text-center fs-2 mt-auto border-top pt-2">
-					<span className="p-0 m-0">Team!</span>
-				</div>
+				<footer className="d-flex border-top me-2 p-2  align-items-center">
+					<strong className="fs-5 me-2">Team:</strong>
+					<strong className="fs-5 text-primary"> {team_name}</strong>
+				</footer>
 			</div>
 			<div
 				className="d-flex flex-column overflow-y-auto"

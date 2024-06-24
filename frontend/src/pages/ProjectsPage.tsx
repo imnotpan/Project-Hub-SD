@@ -14,6 +14,7 @@ const ProjectPage: React.FC = () => {
 	const [dataTeams, setDataTeams] = useState<TeamsCardProps[]>([])
 	const token_project = projectAuthStore.getState().token
 	const token_user = userAuthStore.getState().token
+	const project_name = projectAuthStore.getState().project_name
 	const [newTeamData, setNewTeamData] = useState({
 		team_name: '',
 		team_description: '',
@@ -102,9 +103,10 @@ const ProjectPage: React.FC = () => {
 						<TeamCard team={team} colorRow={index % 2 ? '#fff' : '#f4f9ff'} />
 					))}
 				</ul>
-				<div className=" m-1 text-center fs-2 mt-auto">
-					<span>Project!</span>
-				</div>
+				<footer className="d-flex border-top me-2 p-2  align-items-center">
+					<strong className="fs-5 me-2">Proyecto:</strong>
+					<strong className="fs-5 text-primary"> {project_name}</strong>
+				</footer>
 			</div>
 
 			{showCreateTeamPopup && (
