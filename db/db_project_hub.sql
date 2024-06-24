@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS project(
     FOREIGN KEY (project_owner_id) REFERENCES app_user(app_user_id)
 );
 
+CREATE TABLE IF NOT EXISTS user_type(
+    user_type_id SERIAL PRIMARY KEY,
+    user_type VARCHAR(255)
+);
 
 CREATE TABLE IF NOT EXISTS app_user_profile_project(
     app_user_profile_id SERIAL PRIMARY KEY,
@@ -44,10 +48,7 @@ CREATE TABLE IF NOT EXISTS team(
     FOREIGN KEY (project_id) REFERENCES project(project_id)
 );
 
-CREATE TABLE IF NOT EXISTS user_type(
-    user_type_id SERIAL PRIMARY KEY,
-    user_type VARCHAR(255)
-);
+
 
 INSERT INTO user_type(user_type)
 VALUES

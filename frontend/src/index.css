@@ -3,79 +3,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito+Sans:ital,opsz@0,6..12;1,6..12&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Sen:wght@400..800&display=swap');
 
 .font-inter {
-  font-family: 'Inter', sans-serif;
-  font-optical-sizing: auto;
-  font-style: normal;
-  font-variation-settings: 'slnt' 0;
+	font-family: 'Inter', sans-serif;
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-variation-settings: 'slnt' 0;
 }
 
 .roboto-light {
-  font-family: 'Roboto', sans-serif;
-  font-weight: 300;
-  font-style: normal;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-style: normal;
 }
 
 .nunito-sans-regular {
-  font-family: 'Nunito Sans', sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings: 'wdth' 100, 'YTLC' 500;
+	font-family: 'Nunito Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	font-variation-settings: 'wdth' 100, 'YTLC' 500;
 }
 
 @font-face {
-  font-family: 'Sohne-bunch'; /* Name your font family */
-  src: url('./assets/fonts/TestSöhne-Buch.otf'); /* Locate the .ttf file within your directory*/
+	font-family: 'Sohne-bunch'; /* Name your font family */
+	src: url('./assets/fonts/TestSöhne-Buch.otf'); /* Locate the .ttf file within your directory*/
 }
 
 @font-face {
-  font-family: 'Sohne-fett'; /* Name your font family */
-  src: url('./assets/fonts/TestSöhne-Fett.otf'); /* Locate the .ttf file within your directory*/
+	font-family: 'Sohne-fett'; /* Name your font family */
+	src: url('./assets/fonts/TestSöhne-Fett.otf'); /* Locate the .ttf file within your directory*/
 }
 
 .dark-mode {
-  background-color: #000000;
-  color: #ffffff;
+	background-color: #000000;
+	color: #ffffff;
 }
 
 .dark-mode .nav-button {
-  background-color: #ffffff;
-  color: #000000;
+	background-color: #ffffff;
+	color: #000000;
 }
 
 .dark-mode span {
-  color: #ffffff;
+	color: #ffffff;
 }
 .dark-mode p {
-  color: #ffffff;
+	color: #ffffff;
 }
 
 .dark-mode strong {
-  color: #ffffff;
+	color: #ffffff;
 }
 
 .dark-mode .navbar-nav .nav-item .nav-link:hover {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 .dark-mode .div-register {
-  background-color: #000000;
+	background-color: #000000;
 }
 .dark-mode .div-login {
-  background-color: #000000;
+	background-color: #000000;
 }
 
 .dark-mode .navbar {
-  background-color: #ffffff;
-  box-shadow: 10px 10px 15px -3px rgba(255, 255, 255, 0.125);
+	background-color: #ffffff;
+	box-shadow: 10px 10px 15px -3px rgba(255, 255, 255, 0.125);
 }
 
 .dark-mode .div-register .div-card-register {
-  box-shadow: 10px 10px 15px -3px rgba(255, 255, 255, 0.125);
+	box-shadow: 10px 10px 15px -3px rgba(255, 255, 255, 0.125);
 }
-
-/* .table-striped > tbody > tr:nth-child(2n + 1) > td,
-.table-striped > tbody > tr:nth-child(2n + 1) > th {
-  background-color: #c9d7ff;
-}
- */

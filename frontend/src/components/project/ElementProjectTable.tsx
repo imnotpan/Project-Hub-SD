@@ -5,6 +5,7 @@ import { apiSendData } from '../../services/apiService'
 import { useNavigate } from 'react-router-dom'
 import Copy from '../../assets/Copy'
 import Avatar from 'react-avatar'
+import { formatDate } from '../../services/functions'
 
 type ElementProjectTableProps = {
 	// Define las propiedades de la tabla de proyectos
@@ -63,50 +64,6 @@ const ElementProjectTable: React.FC<ElementProjectTableProps> = ({
 		navigator.clipboard.writeText(e.currentTarget.textContent || '')
 	}
 
-	const days = [
-		// Define los días de la semana y los meses
-		'domingo',
-		'lunes',
-		'martes',
-		'miércoles',
-		'jueves',
-		'viernes',
-		'sábado',
-	]
-	const months = [
-		'enero',
-		'febrero',
-		'marzo',
-		'abril',
-		'mayo',
-		'junio',
-		'julio',
-		'agosto',
-		'septiembre',
-		'octubre',
-		'noviembre',
-		'diciembre',
-	]
-
-	const parseDate = (dateString: string): Date => {
-		// Parsea la fecha en el formato correcto
-		const date = new Date(dateString)
-
-		const userTimezoneOffset = date.getTimezoneOffset() * 60000
-		return new Date(date.getTime() + userTimezoneOffset)
-	}
-
-	const formatDate = (dateString: string): string => {
-		// Formatea la fecha mostrando el día, mes y año
-		const date = parseDate(dateString)
-		const dayName = days[date.getDay()]
-		const day = date.getDate()
-		const monthName = months[date.getMonth()]
-		const year = date.getFullYear()
-
-		return `${dayName} ${day} de ${monthName} ${year}`
-	}
-
 	const [hover, SetHover] = React.useState(false)
 
 	return (
@@ -157,7 +114,7 @@ const ElementProjectTable: React.FC<ElementProjectTableProps> = ({
 						e.currentTarget.style.color = '#333'
 						SetHover(false)
 					}}>
-					<p className="m-0 text-center ">{project_id}</p>
+					<p className="m-0 text-center px-2">{project_id}</p>
 					<Copy color={hover ? '#a1a5a7' : '#333'} size="20" />
 				</div>
 			</td>

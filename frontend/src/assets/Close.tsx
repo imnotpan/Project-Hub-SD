@@ -9,9 +9,9 @@ const Close: React.FC<IconProps> = ({ size, color }) => {
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke={color}
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round">
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round">
 			<path d="M6 6l12 12M6 18L18 6" />
 		</svg>
 	)
