@@ -12,19 +12,19 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 	const dropdownRef = useRef<HTMLDivElement>(null)
 
 	const backgroundColors: string[] = [
-		'#a3e2a3', // Muy facil
-		'#91c9ff', // Facil
+		'#a3e2a3', // Muy fácil
+		'#91c9ff', // Fácil
 		'#ffc966', // Intermedio
-		'#fcb995', // Dificil
-		'#ff9999', // Muy Dificil
+		'#fcb995', // Difícil
+		'#ff9999', // Muy Difícil
 	]
 
 	const difficulties: string[] = [
-		'Muy facil',
-		'Facil',
+		'Muy fácil',
+		'Fácil',
 		'Intermedio',
-		'Dificil',
-		'Muy Dificil',
+		'Difícil',
+		'Muy Difícil',
 	]
 
 	useEffect(() => {
@@ -32,11 +32,12 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 		setBackgroundColor(backgroundColors[difficulty] || '#f8f8f8')
 	}, [difficulty])
 
-	const handleDropdownSelect = (index: number) => {
+	const handleDropdownSelect = (index: number, event: React.MouseEvent) => {
+		event.stopPropagation() // Stop the click event from propagating
 		setSelectedDifficulty(difficulties[index])
 		setBackgroundColor(backgroundColors[index] || '#f8f8f8')
-		onChange(index) // Aquí pasamos el índice seleccionado a la función onChange
-		setDropdownOpen(false) // Cerrar el menú después de seleccionar
+		onChange(index)
+		setDropdownOpen(false)
 	}
 
 	const handleClickOutside = (event: MouseEvent) => {
@@ -60,7 +61,8 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 		}
 	}, [dropdownOpen])
 
-	const toggleDropdown = () => {
+	const toggleDropdown = (event: React.MouseEvent) => {
+		event.stopPropagation()
 		setDropdownOpen(!dropdownOpen)
 	}
 
@@ -80,7 +82,7 @@ const Priority: React.FC<PriorityProps> = ({ difficulty, onChange }) => {
 							<a
 								href="#!"
 								className="dropdown-item"
-								onClick={() => handleDropdownSelect(index)}>
+								onClick={(event) => handleDropdownSelect(index, event)}>
 								{dif}
 							</a>
 						</li>

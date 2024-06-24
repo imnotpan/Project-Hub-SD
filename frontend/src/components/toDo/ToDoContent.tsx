@@ -61,12 +61,7 @@ const ToDoContent: React.FC<
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		if (
-			!data.startDate ||
-			!data.endDate ||
-			!data.description ||
-			!data.difficulty
-		) {
+		if (!data.startDate || !data.endDate) {
 			toast.warning('Por favor, completa todas las fechas.')
 			return
 		}
