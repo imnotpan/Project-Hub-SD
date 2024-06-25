@@ -1,16 +1,24 @@
 const BASE_URL = `${import.meta.env.VITE_API_URL}`
 
-export const apiSendData = async (
+interface Headers {
+	[key: string]: string
+}
+
+const apiRequest = async (
 	route: string,
-	header: any,
+	method: string,
+	header: Headers,
 	body?: string
 ): Promise<Response> => {
 	try {
-		const response = await fetch(BASE_URL + route, {
-			method: 'POST',
+		const options: RequestInit = {
+			method,
 			headers: header,
-			body: body ? body : JSON.stringify({}),
-		})
+		}
+		if (body) {
+			options.body = body
+		}
+		const response = await fetch(BASE_URL + route, options)
 		return response
 	} catch (error) {
 		console.error('Error', error)
@@ -18,50 +26,31 @@ export const apiSendData = async (
 	}
 }
 
-export const apiGetData = async (
+export const apiSendData = (
 	route: string,
-	header: any
+	header: Headers,
+	body?: string
 ): Promise<Response> => {
-	try {
-		const response = await fetch(BASE_URL + route, {
-			method: 'GET',
-			headers: header,
-		})
-		return response
-	} catch (error) {
-		console.error('Error', error)
-		throw error
-	}
+	return apiRequest(route, 'POST', header, body ? body : JSON.stringify({}))
 }
 
-export const apiDeleteData = async (
+export const apiGetData = (
 	route: string,
-	header: any
+	header: Headers
 ): Promise<Response> => {
-	try {
-		const response = await fetch(BASE_URL + route, {
-			method: 'DELETE',
-			headers: header,
-		})
-		return response
-	} catch (error) {
-		console.error('Error', error)
-		throw error
-	}
+	return apiRequest(route, 'GET', header)
 }
 
-export const apiPatchData = async (
+export const apiDeleteData = (
 	route: string,
-	header: any
+	header: Headers
 ): Promise<Response> => {
-	try {
-		const response = await fetch(BASE_URL + route, {
-			method: 'PATCH',
-			headers: header,
-		})
-		return response
-	} catch (error) {
-		console.error('Error', error)
-		throw error
-	}
+	return apiRequest(route, 'DELETE', header)
+}
+
+export const apiPatchData = (
+	route: string,
+	header: Headers
+): Promise<Response> => {
+	return apiRequest(route, 'PATCH', header)
 }

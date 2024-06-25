@@ -19,12 +19,7 @@ const App: React.FC = () => {
 	return (
 		<div>
 			<NavigationBar />
-
 			<Routes>
-				{/*         <Route
-          path="/"
-          element={login ? <ProjectsPage /> : <Navigate to="/login" />}
-        /> */}
 				<Route path="/" element={<HomePage />} />
 
 				<Route path="/login" element={<LoginPage />} />
