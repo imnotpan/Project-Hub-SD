@@ -94,8 +94,10 @@ const Chat: React.FC = () => {
 			} else {
 				toast.error('Error al enviar mensaje.')
 			}
-		} catch (error) {
-			console.error('Error:', error)
+		} catch {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
 		}
 	}
 

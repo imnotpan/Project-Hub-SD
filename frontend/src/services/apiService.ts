@@ -49,3 +49,19 @@ export const apiDeleteData = async (
 		throw error
 	}
 }
+
+export const apiPatchData = async (
+	route: string,
+	header: any
+): Promise<Response> => {
+	try {
+		const response = await fetch(BASE_URL + route, {
+			method: 'PATCH',
+			headers: header,
+		})
+		return response
+	} catch (error) {
+		console.error('Error', error)
+		throw error
+	}
+}

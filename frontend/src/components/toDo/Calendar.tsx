@@ -77,9 +77,9 @@ const Calendar: React.FC<{ dateSelect: (date: Date) => void }> = ({
 	}
 
 	return (
-		<div>
+		<div className="">
 			<button
-				className="btn border-0"
+				className="btn border-0 p-0 m-0"
 				type="button"
 				onClick={togglePopover}
 				style={{

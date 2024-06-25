@@ -4,7 +4,7 @@ import Close from '../../assets/Close'
 import Calendar from './Calendar'
 import Priority from './Priority'
 import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
-import { apiSendData } from '../../services/apiService'
+import { apiPatchData } from '../../services/apiService'
 import { ToDoContentProps } from '../../types/types'
 import Edit from '../../assets/Edit'
 
@@ -67,31 +67,28 @@ const ToDoContent: React.FC<
 		}
 
 		try {
-			const route = `/tasks/add?project_auth_key=${token_project}&team_id=${teamId}&task_description=${
-				data.description
-			}&task_end_date=${data.endDate
+			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${teamId}&task_id=${
+				todo.task_id
+			}&task_description=${data.description}&task_end_date=${data.endDate
 				.toISOString()
 				.slice(0, 10)}&task_deadline_date=${data.endDate
 				.toISOString()
-				.slice(0, 10)}&task_difficult=${data.difficulty}&task_state=${status}`
+				.slice(0, 10)}&task_difficult=${
+				data.difficulty
+			}&task_state=${status}&task_name=${data.name}`
 			const header = {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token_user}`,
 			}
-			console.log(route)
-			const response = await apiSendData(route, header)
-			const responseData = await response.json() // Parse the JSON response
+			const response = await apiPatchData(route, header)
 
 			if (response.ok) {
 				refreshTasks()
-
-				console.log(responseData)
-				toast.success('Tarea creada exitosamente.')
+				toast.success('Tarea actualizada exitosamente.')
 			} else {
-				toast.warning('Error al crear la tarea.')
+				toast.warning('Error al actualizar la tarea.')
 			}
-		} catch (e) {
-			refreshTasks() // esto sacar por que por ahora solo es por el error que hay
+		} catch {
 			toast.warning(
 				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
 			)
@@ -114,7 +111,6 @@ const ToDoContent: React.FC<
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		changeText(event.target.value)
-		console.log(event.target.value)
 	}
 	const handleBlur = () => {
 		handleSave()
@@ -164,10 +160,10 @@ const ToDoContent: React.FC<
 						/>
 					) : (
 						<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
-							{name?.length > 0
-								? name.length > 17
-									? name.slice(0, 17) + '...'
-									: name
+							{todo.task_name?.length > 0
+								? todo.task_name.length > 17
+									? todo.task_name.slice(0, 17) + '...'
+									: todo.task_name
 								: 'Tarea sin nombre'}
 						</h2>
 					)}
@@ -215,6 +211,7 @@ const ToDoContent: React.FC<
 
 				<form onSubmit={handleSubmit}>
 					<div className="mb-3 d-flex align-items-center">
+						<strong className="me-auto">Fecha de creacion:</strong>
 						<input
 							placeholder="Fecha de creacion"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
@@ -222,7 +219,20 @@ const ToDoContent: React.FC<
 							value={handleStartDate(data.startDate)}
 							onChange={handleDataInputs}
 							name="startDate"
-							className="form-control me-2"
+							className="form-control w-50"
+							disabled
+						/>
+					</div>
+					<div className="mb-3 d-flex align-items-center ">
+						<strong className="me-auto">Fecha de fin:</strong>
+						<input
+							placeholder="Fecha de creacion"
+							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
+							type="text"
+							value={handleStartDate(data.startDate)}
+							onChange={handleDataInputs}
+							name="startDate"
+							className="form-control me-2 w-50"
 							disabled
 						/>
 						<Calendar
@@ -230,6 +240,7 @@ const ToDoContent: React.FC<
 						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
+						<strong className="me-auto">Fecha limite:</strong>
 						<input
 							placeholder="Fecha de fin"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
@@ -237,7 +248,7 @@ const ToDoContent: React.FC<
 							value={handleEndDate(data.endDate)}
 							onChange={handleDataInputs}
 							name="endDate"
-							className="form-control me-2"
+							className="form-control me-2 w-50"
 							disabled
 						/>
 						<Calendar

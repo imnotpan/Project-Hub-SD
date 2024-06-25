@@ -68,11 +68,9 @@ async def get_project_by_id(project_id): # Obtiene un proyecto por su id en la b
     project_search_query = f"SELECT * FROM project WHERE project_id = '{ project_id }';"
     cursor.execute(project_search_query)
     find_project = cursor.fetchone()
-    print("AAAAA", find_project)
     if find_project:
         columns = [desc[0] for desc in cursor.description]
         user_info = dict(zip(columns, find_project))
-        print("BBBBB", user_info)
         return user_info
     cursor.close()
     return find_project

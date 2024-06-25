@@ -44,8 +44,10 @@ const TeamsPage: React.FC = () => {
 			} else {
 				toast.error('Error al obtener los usuarios.')
 			}
-		} catch (e) {
-			console.error('Error:', e)
+		} catch {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
 		}
 	}
 

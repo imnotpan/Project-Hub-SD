@@ -54,8 +54,9 @@ export type UserProps = {
 	user_status: string
 }
 
-export interface Todo {
+export interface TodoType {
 	task_id: number
+	task_name: string
 	task_description: string
 	task_creation_date: string
 	task_end_date: string
@@ -66,7 +67,7 @@ export interface Todo {
 }
 
 export interface ToDoCardProps {
-	todo: Todo
+	todo: TodoType
 	onDelete: (id: number) => void
 	status: string
 }
@@ -81,6 +82,6 @@ export interface ToDoContentProps {
 export type ToDoProps = {
 	color: string
 	title: string
-	tasks?: Todo[]
+	tasks?: TodoType[]
 	status: string
 }
