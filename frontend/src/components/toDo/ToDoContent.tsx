@@ -18,7 +18,7 @@ const ToDoContent: React.FC<
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
 	const access_token = getUserSession()
 	const { token_project } = projectAuthStore.getState()
-	const teamId = teamAuthStore.getState().team_id
+	const { team_id } = teamAuthStore.getState()
 	const [isEditing, setIsEditing] = useState(false)
 	const [hoverEdit, setHoverEdit] = useState(false)
 
@@ -31,10 +31,15 @@ const ToDoContent: React.FC<
 
 	const [data, setData] = useState({
 		name: name,
-		startDate: todo.task_creation_date
+		task_creation_date: todo.task_creation_date
 			? new Date(todo.task_creation_date)
 			: new Date(),
-		endDate: todo.task_end_date ? new Date(todo.task_end_date) : new Date(),
+		task_end_date: todo.task_end_date
+			? new Date(todo.task_end_date)
+			: new Date(),
+		task_deadline_date: todo.task_deadline_date
+			? new Date(todo.task_deadline_date)
+			: new Date(),
 		description: todo.task_description || '', // Aquí también ajustado para tomar el valor de task_description si existe
 		difficulty:
 			typeof todo.task_difficult === 'number' ? todo.task_difficult : 0,
@@ -62,17 +67,17 @@ const ToDoContent: React.FC<
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		if (!data.startDate || !data.endDate) {
+		if (!data.task_creation_date || !data.task_deadline_date) {
 			toast.warning('Por favor, completa todas las fechas.')
 			return
 		}
 
 		try {
-			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${teamId}&task_id=${
+			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${
 				todo.task_id
-			}&task_description=${data.description}&task_end_date=${data.endDate
+			}&task_description=${data.description}&task_end_date=${data.task_end_date
 				.toISOString()
-				.slice(0, 10)}&task_deadline_date=${data.endDate
+				.slice(0, 10)}&task_deadline_date=${data.task_deadline_date
 				.toISOString()
 				.slice(0, 10)}&task_difficult=${
 				data.difficulty
@@ -216,8 +221,8 @@ const ToDoContent: React.FC<
 						<input
 							placeholder="Fecha de creacion"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
-							type="text"
-							value={handleStartDate(data.startDate)}
+							type="date"
+							value={handleStartDate(data.task_creation_date)}
 							onChange={handleDataInputs}
 							name="startDate"
 							className="form-control w-50"
@@ -229,15 +234,15 @@ const ToDoContent: React.FC<
 						<input
 							placeholder="Fecha de creacion"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
-							type="text"
-							value={handleStartDate(data.startDate)}
+							type="date"
+							value={handleStartDate(data.task_end_date)}
 							onChange={handleDataInputs}
 							name="startDate"
 							className="form-control me-2 w-50"
 							disabled
 						/>
 						<Calendar
-							dateSelect={(date) => setData({ ...data, startDate: date })}
+							dateSelect={(date) => setData({ ...data, task_end_date: date })}
 						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">
@@ -245,15 +250,17 @@ const ToDoContent: React.FC<
 						<input
 							placeholder="Fecha de fin"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
-							type="text"
-							value={handleEndDate(data.endDate)}
+							type="date"
+							value={handleEndDate(data.task_deadline_date)}
 							onChange={handleDataInputs}
 							name="endDate"
 							className="form-control me-2 w-50"
 							disabled
 						/>
 						<Calendar
-							dateSelect={(date) => setData({ ...data, endDate: date })}
+							dateSelect={(date) =>
+								setData({ ...data, task_deadline_date: date })
+							}
 						/>
 					</div>
 					<div className="mb-3 d-flex align-items-center">

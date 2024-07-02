@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import user from './user.json'
 import UserCard from '../cards/UserCard'
 
@@ -7,6 +7,15 @@ type UserProps = {
 }
 
 const UserList: React.FC<UserProps> = ({ showList }) => {
+	useEffect(() => {
+		/* const fetchUsers = async () => {
+			const response = await fetch('http://localhost:8000/api/users/')
+			const data = await response.json()
+			console.log(data)
+		}
+		fetchUsers() */
+	}, [])
+
 	return (
 		<div
 			className="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75"

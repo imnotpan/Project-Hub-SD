@@ -25,7 +25,7 @@ const ToDoCard: React.FC<
 
 	const { access_token } = getUserSession()
 	const { token_project } = projectAuthStore.getState()
-	const teamId = teamAuthStore.getState().team_id
+	const { team_id } = teamAuthStore.getState()
 
 	useEffect(() => {
 		setText(todo.task_name)
@@ -39,7 +39,7 @@ const ToDoCard: React.FC<
 
 	const fetchAndUpdateTask = async () => {
 		try {
-			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${teamId}&task_id=${
+			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${
 				todo.task_id
 			}&task_name=${text ? text : 'Tarea sin nombre'}`
 
