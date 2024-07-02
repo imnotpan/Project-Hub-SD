@@ -3,10 +3,11 @@ import { toast, Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
 import Priority from './Priority'
-import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { projectAuthStore, teamAuthStore } from '../../authStore'
 import { apiPatchData } from '../../services/apiService'
 import { ToDoContentProps } from '../../types/types'
 import Edit from '../../assets/Edit'
+import { getUserSession } from '../../services/login'
 
 const ToDoContent: React.FC<
 	ToDoContentProps & {
@@ -15,8 +16,8 @@ const ToDoContent: React.FC<
 	}
 > = ({ onClose, status, name, todo, refreshTasks, changeText }) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
-	const token_user = userAuthStore.getState().token
-	const token_project = projectAuthStore.getState().token
+	const access_token = getUserSession()
+	const { token_project } = projectAuthStore.getState()
 	const teamId = teamAuthStore.getState().team_id
 	const [isEditing, setIsEditing] = useState(false)
 	const [hoverEdit, setHoverEdit] = useState(false)
@@ -78,7 +79,7 @@ const ToDoContent: React.FC<
 			}&task_state=${status}&task_name=${data.name}`
 			const header = {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
+				Authorization: `Bearer ${access_token}`,
 			}
 			const response = await apiPatchData(route, header)
 

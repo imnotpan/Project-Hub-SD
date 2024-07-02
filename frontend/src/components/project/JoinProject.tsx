@@ -1,16 +1,11 @@
 import { useState } from 'react'
 import Back from '../../assets/Back'
-import { projectAuthStore, userAuthStore } from '../../authStore'
 import { useNavigate } from 'react-router-dom'
-import { toast, Toaster } from 'sonner'
-import { apiSendData } from '../../services/apiService'
+import { Toaster } from 'sonner'
+import { fetchJoinProject } from '../../services/project'
 
 const JoinProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
-	const setToken = projectAuthStore((state) => state.setToken) // Obtén el método setToken del store
-	const setTokenType = projectAuthStore((state) => state.setTokenType) // Obtén el método setUserType del store
-	const setProjectName = projectAuthStore((state) => state.setProjectName) // Obtén el método setProjectName del store
 	const navigate = useNavigate()
-
 	const [joinProjectData, setJoinProjectData] = useState({
 		project_id: '',
 		project_password: '',
@@ -25,36 +20,14 @@ const JoinProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (!joinProjectData.project_id || !joinProjectData.project_password) {
-			toast.warning('Por favor, completa todos los campos.')
-			return
-		}
-		try {
-			const route = `/project/auth?project_id=${joinProjectData.project_id}&project_password=${joinProjectData.project_password}`
-			const header = {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${userAuthStore.getState().token}`,
-			}
-			const response = await apiSendData(route, header)
-			const data = await response.json() // Parsear la respuesta JSON
-			if (response.ok) {
-				setToken(data.access_token) // Almacena el token en el store
-				setTokenType(data.token_type) // Almacena el tipo de token en el store
-				setProjectName(data.project_name) // Almacena el nombre del proyecto en el store
-				toast.success('Credenciales exitosas!.')
 
-				setTimeout(() => {
-					navigate('/projects')
-				}, 500)
-			} else {
-				toast.error('Credenciales inválidas. Por favor, intenta de nuevo.')
-			}
-		} catch (e) {
-			toast.warning(
-				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-			)
-		}
+		fetchJoinProject(
+			joinProjectData.project_id,
+			joinProjectData.project_password,
+			navigate
+		)
 	}
+
 	return (
 		<div className="d-flex justify-content-center align-items-center w-100 vh-100 div-register">
 			<div

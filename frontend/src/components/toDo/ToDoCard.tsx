@@ -4,9 +4,10 @@ import Edit from '../../assets/Edit'
 import Save from '../../assets/Save'
 import Close from '../../assets/Close'
 import { ToDoCardProps } from '../../types/types'
-import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { projectAuthStore, teamAuthStore } from '../../authStore'
 import { apiPatchData } from '../../services/apiService'
 import { toast } from 'sonner'
+import { getUserSession } from '../../services/login'
 
 const ToDoCard: React.FC<
 	ToDoCardProps & { refreshTasks: () => void; color: string }
@@ -22,8 +23,8 @@ const ToDoCard: React.FC<
 	const [hoverEdit, setHoverEdit] = useState(false)
 	const [saveButton, setSaveButton] = useState(false)
 
-	const token_user = userAuthStore.getState().token
-	const token_project = projectAuthStore.getState().token
+	const { access_token } = getUserSession()
+	const { token_project } = projectAuthStore.getState()
 	const teamId = teamAuthStore.getState().team_id
 
 	useEffect(() => {
@@ -44,7 +45,7 @@ const ToDoCard: React.FC<
 
 			const header = {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
+				Authorization: `Bearer ${access_token}`,
 			}
 
 			const response = await apiPatchData(route, header)

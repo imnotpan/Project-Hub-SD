@@ -1,22 +1,12 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import services from '../assets/ServicesData'
 import { ElementPageProps } from '../types/types'
-import { userAuthStore } from '../authStore'
 
 const ElementPage: React.FC<ElementPageProps> = ({
 	image,
 	title,
 	description,
 }) => {
-	useEffect(() => {
-		const userDataLogin = window.localStorage.getItem('userDataLogin')
-		if (userDataLogin) {
-			const userData = JSON.parse(userDataLogin)
-			userAuthStore.setState({ state: true })
-			userAuthStore.setState({ token: userData.token_user })
-		}
-	}, [])
-
 	return (
 		<div className="col-lg-12 col-md-12 mb-4">
 			<div className="card" style={{ border: 'none', textAlign: 'center' }}>
@@ -51,7 +41,7 @@ const ElementPage: React.FC<ElementPageProps> = ({
 	)
 }
 
-const AboutPage: React.FC = () => {
+const About: React.FC = () => {
 	return (
 		<div
 			className="container-fluid p-2"
@@ -86,4 +76,4 @@ const AboutPage: React.FC = () => {
 	)
 }
 
-export default AboutPage
+export default About

@@ -1,30 +1,19 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
-import { toast } from 'sonner'
-import { apiSendData } from '../../services/apiService'
 import Avatar from 'react-avatar'
-
-type TeamsCardProps = {
-	team: {
-		team_description: string
-		team_id: number
-		team_name: string
-		team_private: boolean
-	}
-	colorRow: string
-}
+import { TeamsCardProps } from '../../types/types'
+import { fetchJoinTeam } from '../../services/team'
 
 const TeamsCard: React.FC<TeamsCardProps> = ({ team, colorRow }) => {
 	const [showTeam, setShowTeam] = useState(false)
+	const [hover, setHover] = useState(false)
+
 	const [dataTeam, setDataTeam] = useState({
 		team_id: team.team_id.toString(),
 		password: '',
 	})
-	const setId = teamAuthStore((state) => state.setTeamId) // Obtén el método setTeamId del store
-	const setTeamName = teamAuthStore((state) => state.setTeamName) // Obtén el método setTeamName del store
+
 	const navigate = useNavigate()
-	const [hover, setHover] = useState(false)
 
 	const handleLoginTeamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setDataTeam({
@@ -35,39 +24,14 @@ const TeamsCard: React.FC<TeamsCardProps> = ({ team, colorRow }) => {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-
-		if (team.team_private && !dataTeam.password) {
-			toast.warning('Por favor, completa todos los campos.')
-			return
-		}
-
-		try {
-			const route = `/team/join?team_id=${dataTeam.team_id}&team_password=${
-				dataTeam.password
-			}&project_auth_key=${projectAuthStore.getState().token}`
-			const header = {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${userAuthStore.getState().token}`,
-			}
-
-			const response = await apiSendData(route, header)
-
-			if (response.ok) {
-				setId(team.team_id)
-				setTeamName(team.team_name)
-				toast.success('¡Credenciales exitosas!')
-				setShowTeam(false) // Cerrar el formulario después del éxito
-				setTimeout(() => {
-					navigate('/teams')
-				}, 500)
-			} else {
-				toast.error('Credenciales inválidas. Por favor, intenta de nuevo.')
-			}
-		} catch (e) {
-			toast.warning(
-				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-			)
-		}
+		fetchJoinTeam(
+			team.team_id,
+			team.team_name,
+			team.team_private,
+			dataTeam.password,
+			navigate,
+			setShowTeam
+		)
 	}
 
 	return (

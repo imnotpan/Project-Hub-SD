@@ -3,12 +3,13 @@ import Add from '../../assets/Add'
 import ToDoCard from './ToDoCard'
 import { TodoType, ToDoProps } from '../../types/types'
 import { toast } from 'sonner'
-import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { projectAuthStore, teamAuthStore } from '../../authStore'
 import {
 	apiDeleteData,
 	apiPatchData,
 	apiSendData,
 } from '../../services/apiService'
+import { getUserSession } from '../../services/login'
 
 const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 	color,
@@ -23,8 +24,8 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 	const [isOver, setIsOver] = useState(false)
 	const titleRef = useRef<HTMLInputElement>(null)
 
-	const token_user = userAuthStore.getState().token
-	const token_project = projectAuthStore.getState().token
+	const { access_token } = getUserSession()
+	const { token_project } = projectAuthStore.getState()
 	const teamId = teamAuthStore.getState().team_id
 
 	useEffect(() => {
@@ -51,7 +52,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 			const route = `/tasks/add?project_auth_key=${token_project}&team_id=${teamId}&task_state=${status}&task_name=${''}`
 			const header = {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
+				Authorization: `Bearer ${access_token}`,
 			}
 			const response = await apiSendData(route, header)
 
@@ -73,7 +74,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 			const route = `/tasks/delete?project_auth_key=${token_project}&task_id=${id}&team_id=${teamId}`
 			const headers = {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
+				Authorization: `Bearer ${access_token}`,
 			}
 			const response = await apiDeleteData(route, headers)
 			if (response.ok) {
@@ -127,7 +128,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 				console.log(route)
 				const header = {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token_user}`,
+					Authorization: `Bearer ${access_token}`,
 				}
 				const response = await apiPatchData(route, header)
 				if (response.ok) {

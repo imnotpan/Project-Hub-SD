@@ -4,24 +4,21 @@ import { userAuthStore } from '../authStore.tsx'
 import Menu from '../assets/Menu.tsx'
 import Sun from '../assets/Sun.tsx'
 import Moon from '../assets/Moon.tsx'
+import { clearUserSession } from '../services/login.ts'
 
 const NavigationBar: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [mode, setMode] = useState('light')
 	const login = userAuthStore((state) => state.state)
 	const [activeItem, setActiveItem] = useState<string>('')
+	const { setState } = userAuthStore.getState()
 
 	const navRef = useRef<HTMLDivElement>(null)
 
 	const logout = () => {
 		setIsOpen(false)
-		const authState = userAuthStore.getState()
-		authState.setToken('')
-		authState.setUsername('')
-		authState.setEmail('')
-		authState.setTokenType('')
-		authState.setState(false)
-		localStorage.removeItem('userDataLogin')
+		setState(false)
+		clearUserSession()
 	}
 
 	const handleNavItemClick = (link: string) => {

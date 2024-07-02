@@ -1,0 +1,32 @@
+[
+	{
+		"user_name": "Juan Pérez",
+		"user_email": "juan.perez@example.com",
+		"user_status": "Activo",
+		"colorRow": "#f0f4f8"
+	},
+	{
+		"user_name": "Ana Gómez",
+		"user_email": "ana.gomez@example.com",
+		"user_status": "Inactivo",
+		"colorRow": "#ffffff"
+	},
+	{
+		"user_name": "Carlos Fernández",
+		"user_email": "carlos.fernandez@example.com",
+		"user_status": "Pendiente",
+		"colorRow": "#e0f7fa"
+	},
+	{
+		"user_name": "Laura Martínez",
+		"user_email": "laura.martinez@example.com",
+		"user_status": "Activo",
+		"colorRow": "#e8f5e9"
+	},
+	{
+		"user_name": "Miguel Sánchez",
+		"user_email": "miguel.sanchez@example.com",
+		"user_status": "Inactivo",
+		"colorRow": "#fce4ec"
+	}
+]

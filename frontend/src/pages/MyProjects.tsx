@@ -1,7 +1,7 @@
 import React from 'react'
 import ProjectTable from '../components/project/ProjectTable'
 
-const MyProjectsPage: React.FC = () => {
+const MyProjects: React.FC = () => {
 	return (
 		<div style={{ height: 'calc(100vh - 58px)', marginTop: '58px' }}>
 			<div className="container h-100">
@@ -15,4 +15,4 @@ const MyProjectsPage: React.FC = () => {
 	)
 }
 
-export default MyProjectsPage
+export default MyProjects

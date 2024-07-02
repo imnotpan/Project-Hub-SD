@@ -1,20 +1,13 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import team_video from '../assets/images/team_video.mp4'
 import CardService from '../components/cards/CardService'
 import { Link } from 'react-router-dom'
 import services from '../assets/ServicesData'
 import { userAuthStore } from '../authStore'
 
-const HomePage: React.FC = () => {
-	useEffect(() => {
-		const userDataLogin = window.localStorage.getItem('userDataLogin')
-		if (userDataLogin) {
-			const userData = JSON.parse(userDataLogin)
-			userAuthStore.setState({ state: true })
-			userAuthStore.setState({ token: userData.token_user })
-		}
-	}, [])
+const Home: React.FC = () => {
 	const login = userAuthStore((state) => state.state)
+
 	return (
 		<div
 			className="container-fluid"
@@ -33,7 +26,6 @@ const HomePage: React.FC = () => {
 						<p className="border d-inline-flex rounded-pill text-black">
 							<strong className="mx-3 my-2">hey!...</strong>
 						</p>
-
 						<h1
 							className="font-inter"
 							style={{
@@ -57,7 +49,6 @@ const HomePage: React.FC = () => {
 							en proyectos emocionantes con personas de ideas afines en todo el
 							mundo.
 						</p>
-
 						<Link
 							to={login ? '/project-options' : '/login'}
 							className="nav-link">
@@ -89,8 +80,7 @@ const HomePage: React.FC = () => {
 					}}>
 					<strong>Servicios</strong>
 				</h1>
-
-				<div className="row p-4 ">
+				<div className="row p-4">
 					{services.map((service, index) => (
 						<div
 							className="col-md-6 col-sm-12 col-lg-3 mb-4 font-inter"
@@ -110,4 +100,4 @@ const HomePage: React.FC = () => {
 	)
 }
 
-export default HomePage
+export default Home

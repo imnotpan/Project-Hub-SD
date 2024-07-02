@@ -1,10 +1,6 @@
 import React, { useEffect, useRef } from 'react'
-import { MessageProps } from '../../types/types'
+import { MessageListProps } from '../../types/types'
 import Message from './Message'
-
-type MessageListProps = {
-	messages: MessageProps[]
-}
 
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
 	const messagesEndRef = useRef<HTMLDivElement>(null)

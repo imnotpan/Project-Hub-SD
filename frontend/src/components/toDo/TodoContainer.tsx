@@ -4,20 +4,21 @@ import ToDo from './ToDo'
 import { TodoType } from '../../types/types'
 import { toast } from 'sonner'
 import { apiGetData } from '../../services/apiService'
-import { projectAuthStore, teamAuthStore, userAuthStore } from '../../authStore'
+import { projectAuthStore, teamAuthStore } from '../../authStore'
+import { getUserSession } from '../../services/login'
 
 const ToDoContainer: React.FC = () => {
 	const [dataToDo, setDataToDo] = useState<TodoType[]>([])
 	const teamId = teamAuthStore.getState().team_id
-	const token_user = userAuthStore.getState().token
-	const token_project = projectAuthStore.getState().token
+	const { access_token } = getUserSession()
+	const { token_project } = projectAuthStore.getState()
 
 	const fetchTodos = async () => {
 		try {
 			const route = `/team/${teamId}/tasks?project_auth_key=${token_project}`
 			const headers = {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token_user}`,
+				Authorization: `Bearer ${access_token}`,
 			}
 			const response = await apiGetData(route, headers)
 			const data = await response.json()
@@ -34,7 +35,7 @@ const ToDoContainer: React.FC = () => {
 
 	useEffect(() => {
 		fetchTodos()
-	}, [teamId, token_project, token_user])
+	}, [teamId, token_project, access_token])
 
 	const filterTasksByState = (state: string) =>
 		dataToDo.filter((task) => task.task_state === state)

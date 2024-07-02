@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { userAuthStore } from '../../authStore'
-import { toast, Toaster } from 'sonner'
-import { apiGetData } from '../../services/apiService'
+import { Toaster } from 'sonner'
 import { ProjectCardProps } from '../../types/types'
 import ElementProjectTable from './ElementProjectTable'
+import { fetchProjects } from '../../services/project'
 
 const ProjectTable: React.FC = () => {
 	const [dataProjects, setDataProjects] = useState<ProjectCardProps[]>([])
@@ -11,29 +10,7 @@ const ProjectTable: React.FC = () => {
 	const itemsPerPage = 5
 
 	useEffect(() => {
-		const fetchProjects = async () => {
-			try {
-				const route = `/user/projects`
-				const header = {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${userAuthStore.getState().token}`,
-				}
-				const response = await apiGetData(route, header)
-				if (response.ok) {
-					toast.success('Proyectos obtenidos exitosamente.')
-					const data = await response.json()
-					setDataProjects(data)
-				} else {
-					toast.error('Error al obtener los proyectos.')
-				}
-			} catch {
-				toast.warning(
-					'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-				)
-			}
-		}
-
-		fetchProjects()
+		fetchProjects(setDataProjects)
 	}, [])
 
 	const indexOfLastProject = currentPage * itemsPerPage
@@ -88,7 +65,6 @@ const ProjectTable: React.FC = () => {
 									project_creation_date={project.project_creation_date}
 								/>
 							))}
-							<Toaster richColors />
 						</tbody>
 					</table>
 				</div>
@@ -102,6 +78,7 @@ const ProjectTable: React.FC = () => {
 					/>
 				</div>
 			</div>
+			<Toaster richColors />
 		</div>
 	)
 }
