@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
 import ToDo from './ToDo'
 import { TodoType } from '../../types/types'
 import { toast } from 'sonner'
@@ -24,7 +23,6 @@ const ToDoContainer: React.FC = () => {
 			const data = await response.json()
 			if (response.ok) {
 				setDataToDo(data)
-				toast.success('Tareas obtenidas exitosamente!.')
 			}
 		} catch (error) {
 			toast.warning(
@@ -35,7 +33,7 @@ const ToDoContainer: React.FC = () => {
 
 	useEffect(() => {
 		fetchTodos()
-	}, [teamId, token_project, access_token])
+	}, [teamId, token_project])
 
 	const filterTasksByState = (state: string) =>
 		dataToDo.filter((task) => task.task_state === state)
@@ -49,7 +47,7 @@ const ToDoContainer: React.FC = () => {
 						title="Sin asignar"
 						tasks={filterTasksByState('Unassigned')}
 						status="Unassigned"
-						refreshTasks={fetchTodos} // Pass the fetch function
+						refreshTasks={fetchTodos}
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -58,7 +56,7 @@ const ToDoContainer: React.FC = () => {
 						title="Sin iniciar"
 						tasks={filterTasksByState('Not started')}
 						status="Not started"
-						refreshTasks={fetchTodos} // Pass the fetch function
+						refreshTasks={fetchTodos}
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -67,7 +65,7 @@ const ToDoContainer: React.FC = () => {
 						title="En proceso"
 						tasks={filterTasksByState('In process')}
 						status="In process"
-						refreshTasks={fetchTodos} // Pass the fetch function
+						refreshTasks={fetchTodos}
 					/>
 				</div>
 				<div className="col-md m-2">
@@ -76,7 +74,7 @@ const ToDoContainer: React.FC = () => {
 						title="Terminada"
 						tasks={filterTasksByState('Completed')}
 						status="Completed"
-						refreshTasks={fetchTodos} // Pass the fetch function
+						refreshTasks={fetchTodos}
 					/>
 				</div>
 			</div>

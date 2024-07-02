@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { toast, Toaster } from 'sonner'
+import { Toaster } from 'sonner'
 import Close from '../../assets/Close'
 import Calendar from './Calendar'
 import Priority from './Priority'
-import { projectAuthStore, teamAuthStore } from '../../authStore'
-import { apiPatchData } from '../../services/apiService'
 import { ToDoContentProps } from '../../types/types'
 import Edit from '../../assets/Edit'
-import { getUserSession } from '../../services/login'
+import { fetchAndUpdateTask } from '../../services/toDo'
 
 const ToDoContent: React.FC<
 	ToDoContentProps & {
@@ -16,9 +14,6 @@ const ToDoContent: React.FC<
 	}
 > = ({ onClose, status, name, todo, refreshTasks, changeText }) => {
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
-	const access_token = getUserSession()
-	const { token_project } = projectAuthStore.getState()
-	const { team_id } = teamAuthStore.getState()
 	const [isEditing, setIsEditing] = useState(false)
 	const [hoverEdit, setHoverEdit] = useState(false)
 
@@ -40,7 +35,7 @@ const ToDoContent: React.FC<
 		task_deadline_date: todo.task_deadline_date
 			? new Date(todo.task_deadline_date)
 			: new Date(),
-		description: todo.task_description || '', // Aquí también ajustado para tomar el valor de task_description si existe
+		description: todo.task_description || '',
 		difficulty:
 			typeof todo.task_difficult === 'number' ? todo.task_difficult : 0,
 		state: statusMap[status],
@@ -54,6 +49,7 @@ const ToDoContent: React.FC<
 			[e.target.name]: e.target.value,
 		})
 	}
+
 	const handleStartDate = (date: Date) => {
 		const formattedDate = date.toISOString().substring(0, 10)
 		return formattedDate
@@ -67,39 +63,18 @@ const ToDoContent: React.FC<
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		if (!data.task_creation_date || !data.task_deadline_date) {
-			toast.warning('Por favor, completa todas las fechas.')
-			return
-		}
-
-		try {
-			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${
-				todo.task_id
-			}&task_description=${data.description}&task_end_date=${data.task_end_date
-				.toISOString()
-				.slice(0, 10)}&task_deadline_date=${data.task_deadline_date
-				.toISOString()
-				.slice(0, 10)}&task_difficult=${
-				data.difficulty
-			}&task_state=${status}&task_name=${data.name}`
-			const header = {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${access_token}`,
-			}
-			const response = await apiPatchData(route, header)
-
-			if (response.ok) {
-				refreshTasks()
-				toast.success('Tarea actualizada exitosamente.')
-			} else {
-				toast.warning('Error al actualizar la tarea.')
-			}
-		} catch {
-			toast.warning(
-				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-			)
-		}
-
+		const endDate = data.task_end_date.toISOString().slice(0, 10)
+		const deadLineDate = data.task_deadline_date.toISOString().slice(0, 10)
+		fetchAndUpdateTask(
+			refreshTasks,
+			todo.task_id,
+			data.name,
+			endDate,
+			deadLineDate,
+			status,
+			data.description,
+			data.difficulty
+		)
 		onClose()
 	}
 
@@ -118,11 +93,12 @@ const ToDoContent: React.FC<
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		changeText(event.target.value)
 	}
+
 	const handleBlur = () => {
 		handleSave()
 	}
+
 	const handleSave = () => {
-		// Aquí podrías enviar la actualización del texto a través de una función prop si es necesario
 		setIsEditing(false)
 	}
 
@@ -151,7 +127,7 @@ const ToDoContent: React.FC<
 							ref={inputRef}
 							type="text"
 							className="form-control p-0 fs-5 pe-2 me-2"
-							value={name}
+							value={data.name}
 							onChange={handleTextChange}
 							onBlur={handleBlur}
 							autoFocus
@@ -223,23 +199,25 @@ const ToDoContent: React.FC<
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
 							value={handleStartDate(data.task_creation_date)}
-							onChange={handleDataInputs}
-							name="startDate"
 							className="form-control w-50"
 							disabled
 						/>
 					</div>
-					<div className="mb-3 d-flex align-items-center ">
+					<div className="mb-3 d-flex align-items-center">
 						<strong className="me-auto">Fecha de fin:</strong>
 						<input
-							placeholder="Fecha de creacion"
+							placeholder="Fecha de fin"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
-							value={handleStartDate(data.task_end_date)}
-							onChange={handleDataInputs}
-							name="startDate"
-							className="form-control me-2 w-50"
+							value={handleEndDate(data.task_end_date)}
+							onChange={(e) =>
+								setData({
+									...data,
+									task_end_date: new Date(e.target.value),
+								})
+							}
 							disabled
+							className="form-control me-2 w-50"
 						/>
 						<Calendar
 							dateSelect={(date) => setData({ ...data, task_end_date: date })}
@@ -248,14 +226,18 @@ const ToDoContent: React.FC<
 					<div className="mb-3 d-flex align-items-center">
 						<strong className="me-auto">Fecha limite:</strong>
 						<input
-							placeholder="Fecha de fin"
+							placeholder="Fecha limite"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
 							value={handleEndDate(data.task_deadline_date)}
-							onChange={handleDataInputs}
-							name="endDate"
-							className="form-control me-2 w-50"
+							onChange={(e) =>
+								setData({
+									...data,
+									task_deadline_date: new Date(e.target.value),
+								})
+							}
 							disabled
+							className="form-control me-2 w-50"
 						/>
 						<Calendar
 							dateSelect={(date) =>
@@ -284,17 +266,15 @@ const ToDoContent: React.FC<
 							className="form-control me-2"
 						/>
 					</div>
-					<div style={{ width: '100%' }}>
-						<button
-							type="submit"
-							className="btn text-white w-100"
-							style={{ backgroundColor: '#202020' }}>
-							Guardar
-						</button>
-					</div>
+					<button
+						type="submit"
+						className="btn text-white w-100"
+						style={{ backgroundColor: '#202020' }}>
+						Guardar
+					</button>
 				</form>
-				<Toaster richColors />
 			</div>
+			<Toaster richColors />
 		</div>
 	)
 }

@@ -59,7 +59,7 @@ export const fetchJoinProject = async (
 		const response = await apiSendData(route, header)
 		const data = await response.json() // Parsear la respuesta JSON
 		if (response.ok) {
-			setToken(data.access_token) // Almacena el token en el store
+			setToken(data.access_token)
 			setOwner(data.owner)
 			setProjectName(data.project_name)
 			toast.success('Credenciales exitosas!.')

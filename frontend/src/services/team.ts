@@ -18,13 +18,8 @@ export const fetchTeams = async () => {
 		const response = await apiGetData(route, header)
 
 		if (response.ok) {
-			setTimeout(async () => {
-				toast.success('Equipos obtenidos exitosamente.')
-			}, 900)
 			const data = await response.json()
 			return data
-		} else {
-			toast.error('Error al obtener los equipos.')
 		}
 	} catch {
 		toast.warning(
