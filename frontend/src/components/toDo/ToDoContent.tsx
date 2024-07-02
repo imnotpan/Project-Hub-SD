@@ -6,6 +6,7 @@ import Priority from './Priority'
 import { ToDoContentProps } from '../../types/types'
 import Edit from '../../assets/Edit'
 import { fetchAndUpdateTask } from '../../services/toDo'
+import Save from '../../assets/Save'
 
 const ToDoContent: React.FC<
 	ToDoContentProps & {
@@ -16,6 +17,8 @@ const ToDoContent: React.FC<
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [hoverEdit, setHoverEdit] = useState(false)
+	const [saveButton, setSaveButton] = useState(false)
+	const inputRef = useRef<HTMLInputElement>(null)
 
 	const statusMap: { [key: string]: number } = {
 		Unassigned: 0,
@@ -50,12 +53,7 @@ const ToDoContent: React.FC<
 		})
 	}
 
-	const handleStartDate = (date: Date) => {
-		const formattedDate = date.toISOString().substring(0, 10)
-		return formattedDate
-	}
-
-	const handleEndDate = (date: Date) => {
+	const handleDate = (date: Date) => {
 		const formattedDate = date.toISOString().substring(0, 10)
 		return formattedDate
 	}
@@ -82,8 +80,6 @@ const ToDoContent: React.FC<
 		setIsEditing(!isEditing)
 	}
 
-	const inputRef = useRef<HTMLInputElement>(null)
-
 	useEffect(() => {
 		if (isEditing && inputRef.current) {
 			inputRef.current.focus()
@@ -100,6 +96,12 @@ const ToDoContent: React.FC<
 
 	const handleSave = () => {
 		setIsEditing(false)
+		fetchAndUpdateTask(
+			refreshTasks,
+			todo.task_id,
+			name ? name : 'Tarea sin nombre'
+		)
+		data.name = name
 	}
 
 	return (
@@ -127,7 +129,7 @@ const ToDoContent: React.FC<
 							ref={inputRef}
 							type="text"
 							className="form-control p-0 fs-5 pe-2 me-2"
-							value={data.name}
+							value={name}
 							onChange={handleTextChange}
 							onBlur={handleBlur}
 							autoFocus
@@ -142,16 +144,18 @@ const ToDoContent: React.FC<
 						/>
 					) : (
 						<h2 className="font-inter p-0 m-0" style={{ fontSize: '1.7rem' }}>
-							{todo.task_name?.length > 0
-								? todo.task_name.length > 17
-									? todo.task_name.slice(0, 17) + '...'
-									: todo.task_name
+							{name?.length > 0
+								? name.length > 14
+									? name.slice(0, 14) + '...'
+									: name
 								: 'Tarea sin nombre'}
 						</h2>
 					)}
 					<div className=" d-flex">
 						<button
-							className="border-0 rounded-5 p-0 me-2"
+							className={`border-0 rounded-5 p-0 me-2 ${
+								isEditing ? 'd-none' : ''
+							}`}
 							onClick={handleEdit}
 							style={{
 								backgroundColor: '#F3D32F',
@@ -168,6 +172,29 @@ const ToDoContent: React.FC<
 							onMouseLeave={() => setHoverEdit(false)}>
 							<Edit size="22" color="" />
 						</button>
+						{isEditing && (
+							<button
+								className="border-0 p-0 rounded-5 me-2"
+								onClick={handleSave}
+								style={{
+									backgroundColor: '#4CD964',
+									transition: 'transform 0.3s ease-in-out',
+									color: saveButton ? '#000' : '#4CD964',
+									width: '26px',
+									height: '26px',
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									transform: saveButton ? 'scale(1.1)' : 'scale(1)',
+								}}
+								onMouseOver={() => setSaveButton(true)}
+								onMouseLeave={() => {
+									setSaveButton(false)
+									handleSave
+								}}>
+								<Save size="22" color="" />
+							</button>
+						)}
 						<button
 							className="border-0 rounded-5"
 							style={{
@@ -198,7 +225,7 @@ const ToDoContent: React.FC<
 							placeholder="Fecha de creacion"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
-							value={handleStartDate(data.task_creation_date)}
+							value={handleDate(data.task_creation_date)}
 							className="form-control w-50"
 							disabled
 						/>
@@ -209,7 +236,7 @@ const ToDoContent: React.FC<
 							placeholder="Fecha de fin"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
-							value={handleEndDate(data.task_end_date)}
+							value={handleDate(data.task_end_date)}
 							onChange={(e) =>
 								setData({
 									...data,
@@ -229,7 +256,7 @@ const ToDoContent: React.FC<
 							placeholder="Fecha limite"
 							style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 							type="date"
-							value={handleEndDate(data.task_deadline_date)}
+							value={handleDate(data.task_deadline_date)}
 							onChange={(e) =>
 								setData({
 									...data,
