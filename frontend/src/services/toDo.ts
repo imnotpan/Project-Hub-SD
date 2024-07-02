@@ -11,14 +11,27 @@ export const fetchAndUpdateTask = async (
 	deadLineDate?: string,
 	status?: string,
 	description?: string,
-	difficutly?: string
+	difficulty?: string
 ) => {
 	const { access_token } = getUserSession()
 	const { token_project } = projectAuthStore.getState()
 	const { team_id } = teamAuthStore.getState()
 
 	try {
-		const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${task_id}&task_name=${name}&task_description=${description}&task_end_date=${endDate}&task_deadline_date=${deadLineDate}&task_state=${status}&task_difficult=${difficutly}`
+		// Construir los parámetros de consulta de manera dinámica
+		const params = new URLSearchParams({
+			project_auth_key: token_project,
+			team_id: team_id ? team_id.toString() : '',
+			task_id: task_id.toString(),
+			...(name && { task_name: name }),
+			...(description && { task_description: description }),
+			...(endDate && { task_end_date: endDate }),
+			...(deadLineDate && { task_deadline_date: deadLineDate }),
+			...(status && { task_state: status }),
+			...(difficulty && { task_difficult: difficulty }),
+		}).toString()
+
+		const route = `/tasks/update?${params}`
 
 		const header = {
 			'Content-Type': 'application/json',

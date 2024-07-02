@@ -4,10 +4,7 @@ import Edit from '../../assets/Edit'
 import Save from '../../assets/Save'
 import Close from '../../assets/Close'
 import { ToDoCardProps } from '../../types/types'
-import { projectAuthStore, teamAuthStore } from '../../authStore'
-import { apiPatchData } from '../../services/apiService'
-import { toast } from 'sonner'
-import { getUserSession } from '../../services/login'
+import { fetchAndUpdateTask } from '../../services/toDo'
 
 const ToDoCard: React.FC<
 	ToDoCardProps & { refreshTasks: () => void; color: string }
@@ -23,10 +20,6 @@ const ToDoCard: React.FC<
 	const [hoverEdit, setHoverEdit] = useState(false)
 	const [saveButton, setSaveButton] = useState(false)
 
-	const { access_token } = getUserSession()
-	const { token_project } = projectAuthStore.getState()
-	const { team_id } = teamAuthStore.getState()
-
 	useEffect(() => {
 		setText(todo.task_name)
 	}, [todo.task_name])
@@ -36,32 +29,6 @@ const ToDoCard: React.FC<
 			inputRef.current.focus()
 		}
 	}, [isEditing])
-
-	const fetchAndUpdateTask = async () => {
-		try {
-			const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${
-				todo.task_id
-			}&task_name=${text ? text : 'Tarea sin nombre'}`
-
-			const header = {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${access_token}`,
-			}
-
-			const response = await apiPatchData(route, header)
-
-			if (response.ok) {
-				refreshTasks()
-				toast.success('Tarea actualizada exitosamente.')
-			} else {
-				toast.warning('Error al actualizar la tarea.')
-			}
-		} catch (e) {
-			toast.warning(
-				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
-			)
-		}
-	}
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setText(event.target.value)
@@ -79,7 +46,11 @@ const ToDoCard: React.FC<
 
 	const handleSave = () => {
 		setIsEditing(false)
-		fetchAndUpdateTask()
+		fetchAndUpdateTask(
+			refreshTasks,
+			todo.task_id,
+			text ? text : 'Tarea sin nombre'
+		)
 	}
 
 	const handleEdit = () => {
