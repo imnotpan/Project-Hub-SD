@@ -1,27 +1,26 @@
 import React from 'react'
-import ScatterPlot from './ScatterPlot'
-import testjson from './testjson.json'
+import DonutChart from './DonutChart'
 import BarChart from './BarChart'
 
+import testjson from './testjson.json'
+
 const ChartsContainer: React.FC = () => {
-  return (
-    <div className="container-fluid">
-      <div className="row">
-        <div
-          className="col-md p-2 m-2 align-content-center text-center rounded-2"
-          style={{ backgroundColor: '#21252b' }}>
-          <h3>Tamaño del Equipo v/s Tareas Finalizadas</h3>
-          <ScatterPlot data={testjson} />
-        </div>
-        <div
-          className="col-md p-2 m-2 align-content-center text-center rounded-2"
-          style={{ backgroundColor: '#21252b' }}>
-          <h3>Tareas Finalizadas por Equipo</h3>
-          <BarChart data={testjson} />
-        </div>
-      </div>
-    </div>
-  )
+	return (
+		<div className="container-fluid">
+			<div className="row">
+				<div
+					className="col-md-6"
+					style={{ backgroundColor: '#fff', padding: '20px' }}>
+					<DonutChart data={testjson} />
+				</div>
+				<div
+					className="col-md-6"
+					style={{ backgroundColor: '#fff', padding: '20px' }}>
+					<BarChart data={testjson} />
+				</div>
+			</div>
+		</div>
+	)
 }
 
 export default ChartsContainer
