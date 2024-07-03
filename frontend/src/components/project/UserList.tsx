@@ -1,19 +1,49 @@
-import React, { useEffect } from 'react'
-import user from './user.json'
+import React, { useEffect, useState } from 'react'
 import UserCard from '../cards/UserCard'
+import { getUserSession } from '../../services/login'
+import { projectAuthStore } from '../../authStore'
+import { apiGetData } from '../../services/apiService'
+import { toast } from 'sonner'
+import { UserCardProps } from '../../types/types'
 
-type UserProps = {
+type UserListProps = {
 	showList: (bool: boolean) => void
 }
 
-const UserList: React.FC<UserProps> = ({ showList }) => {
+const UserList: React.FC<UserListProps> = ({ showList }) => {
+	const [users, setUsers] = useState<UserCardProps[]>([])
+
 	useEffect(() => {
-		/* const fetchUsers = async () => {
-			const response = await fetch('http://localhost:8000/api/users/')
-			const data = await response.json()
-			console.log(data)
+		const fetchUsers = async () => {
+			const { access_token } = getUserSession()
+			const { token_project } = projectAuthStore.getState()
+
+			try {
+				//const route = `/team/${team_id}/users?project_auth_key=${token_project}`
+				const route = `/team/1/users?project_auth_key=${token_project}`
+
+				const header = {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${access_token}`,
+				}
+				const response = await apiGetData(route, header)
+
+				if (response.ok) {
+					const data = await response.json()
+					setUsers(data)
+
+					toast.success('Usuarios obtenidos exitosamente.')
+				} else {
+					toast.error('Error al obtener los usuarios.')
+				}
+			} catch {
+				toast.warning(
+					'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+				)
+			}
 		}
-		fetchUsers() */
+
+		fetchUsers()
 	}, [])
 
 	return (
@@ -35,11 +65,11 @@ const UserList: React.FC<UserProps> = ({ showList }) => {
 				</div>
 				<div className="d-flex flex-column flex-grow-1 overflow-auto">
 					<ul className="list-unstyled mb-0">
-						{user.map((user, index) => (
+						{users.map((user, index) => (
 							<li className="mb-3" key={index}>
 								<UserCard
-									user_name={user.user_name}
-									user_email={user.user_email}
+									app_user_name={user.app_user_name}
+									app_user_email={user.app_user_email}
 									user_status={user.user_status}
 									colorRow={index % 2 ? '#fff' : '#f4f9ff'}
 								/>

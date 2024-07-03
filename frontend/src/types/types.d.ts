@@ -114,11 +114,20 @@ export interface UserMessageProps {
 	user_status: string
 }
 
-export type UserCardProps = {
+/* export type UserCardProps = {
 	user_name: string
 	user_email: string
 	user_status: string
 	colorRow: string
+}
+ */
+
+export interface UserCardProps {
+	app_user_name: string
+	app_user_email: string
+	user_status: string
+	app_user_id?: string
+	colorRow?: string
 }
 
 export type MessagesProps = {

@@ -125,7 +125,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 		if (data) {
 			try {
 				const route = `/tasks/update?project_auth_key=${token_project}&team_id=${teamId}&task_id=${data['task_id']}&task_state=${status}`
-				console.log(route)
+
 				const header = {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${access_token}`,

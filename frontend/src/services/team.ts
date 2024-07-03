@@ -80,7 +80,7 @@ export const createTeam = async (
 export const fetchTeamUsers = async (
 	setSessionUsers: React.Dispatch<React.SetStateAction<UserMessageProps[]>>
 ) => {
-	const access_token = getUserSession()
+	const { access_token } = getUserSession()
 	const { token_project } = projectAuthStore.getState()
 	const { team_id } = teamAuthStore.getState()
 

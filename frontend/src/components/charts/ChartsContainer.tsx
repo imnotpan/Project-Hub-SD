@@ -8,14 +8,10 @@ const ChartsContainer: React.FC = () => {
 	return (
 		<div className="container-fluid">
 			<div className="row">
-				<div
-					className="col-md-6"
-					style={{ backgroundColor: '#fff', padding: '20px' }}>
+				<div className="col-md-6 p-1" style={{ backgroundColor: '#fff' }}>
 					<DonutChart data={testjson} />
 				</div>
-				<div
-					className="col-md-6"
-					style={{ backgroundColor: '#fff', padding: '20px' }}>
+				<div className="col-md-6 p-1" style={{ backgroundColor: '#fff' }}>
 					<BarChart data={testjson} />
 				</div>
 			</div>

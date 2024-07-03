@@ -9,12 +9,12 @@ import { TeamsProps } from '../types/types'
 import { createTeam, fetchTeams } from '../services/team'
 import { getUserSession } from '../services/login'
 import CreateTeamPopup from '../components/team/CreateTeamPopup'
-import UserList from '../components/project/UserList'
+import GivePermissionsPopup from '../components/project/GivePermissionsPopup'
 
 const Project: React.FC = () => {
 	const [dataTeams, setDataTeams] = useState<TeamsProps[]>([])
 	const [showCreateTeamPopup, setShowCreateTeamPopup] = useState(false)
-	const [showUserList, setShowUserList] = useState(false)
+	const [showPermissionPopup, setShowPermissionPopup] = useState(false)
 	const { token_project, project_name, owner } = projectAuthStore.getState()
 	const { access_token } = getUserSession()
 	const navigate = useNavigate()
@@ -86,8 +86,8 @@ const Project: React.FC = () => {
 								type="button"
 								className="btn text-white w-100 me-2"
 								style={{ backgroundColor: '#202020' }}
-								onClick={() => setShowUserList(true)}>
-								Lista de usuarios
+								onClick={() => setShowPermissionPopup(true)}>
+								Rol a usuario
 							</button>
 						</>
 					)}
@@ -120,7 +120,10 @@ const Project: React.FC = () => {
 					setShowCreateTeamPopup={setShowCreateTeamPopup}
 				/>
 			)}
-			{showUserList && <UserList showList={setShowUserList} />}
+
+			{showPermissionPopup && (
+				<GivePermissionsPopup onClose={() => setShowPermissionPopup(false)} />
+			)}
 			<div
 				className="d-flex flex-column w-100 h-100 overflow-y-auto"
 				style={{
