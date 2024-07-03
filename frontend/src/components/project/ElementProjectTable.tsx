@@ -30,12 +30,12 @@ const ElementProjectTable: React.FC<ElementProjectTableProps> = ({
 	return (
 		<tr>
 			<td className="d-flex align-items-center">
-				<div className="d-flex justify-content-center align-items-center text-uppercase fw-bold text-white mx-2 me-4">
+				<div className="d-flex justify-content-center align-items-center text-uppercase fw-bold mx-2 me-4">
 					<Avatar name={name} size="46" round={true} />
 				</div>
 				<div>
 					<p className="fw-bold m-0">{name}</p>
-					<p className="m-0 d-none d-md-table-cell">
+					<p className="m-0 d-none d-md-table-cell text-secondary">
 						<strong>Descripcion: </strong>
 						{description.length < 41
 							? description

@@ -37,14 +37,10 @@ export const fetchAndUpdateTask = async (
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${access_token}`,
 		}
-
 		const response = await apiPatchData(route, header)
 
 		if (response.ok) {
 			refreshTasks()
-			toast.success('Tarea actualizada exitosamente.')
-		} else {
-			toast.warning('Error al actualizar la tarea.')
 		}
 	} catch (e) {
 		toast.warning(

@@ -69,7 +69,7 @@ const Project: React.FC = () => {
 						</button>
 					</div>
 					<div className="w-100 mt-2 mb-2 me-2 text-center">
-						<span className=" p-0">Volver a la página de opciones</span>
+						<span className=" fw-bold p-0">Volver a la página de opciones</span>
 					</div>
 				</div>
 				<div className="d-flex my-2">

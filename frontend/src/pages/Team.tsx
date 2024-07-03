@@ -68,7 +68,7 @@ const TeamsPage: React.FC = () => {
 						</button>
 					</div>
 					<div className="w-100 mt-2 mb-2 me-2 text-center">
-						<span className=" p-0">Volver a la página de proyectos</span>
+						<span className="fw-bold p-0">Volver a la página de proyectos</span>
 					</div>
 				</div>
 				<ul
@@ -82,8 +82,8 @@ const TeamsPage: React.FC = () => {
 					{sessionUsers.map((user, index) => (
 						<li className="mb-3" key={index}>
 							<UserCard
-								user_name={user.app_user_name}
-								user_email={user.app_user_email}
+								app_user_email={user.app_user_name}
+								app_user_name={user.app_user_email}
 								user_status={user.user_status}
 								colorRow={index % 2 ? '#fff' : '#f4f9ff'}
 							/>
