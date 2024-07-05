@@ -103,9 +103,12 @@ async def get_tasks_messages(
     if not isLeader:
         return {401, f"You aren't leader"}
     user_to_add_data = await auth_services.get_user_by_email(user_to_add.user_email) 
-    await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 2)
-    return {"add at leader"}
-
+    if user_to_add:
+        await team_services.change_user_type(user_to_add_data['app_user_id'], team_data.team_id, 2)
+        return {"add at leader"}
+    else:
+        return {"Error to add leader"}
+        
 @team_router.post("/{team_id}/delete/leader", tags=["team"]) # Ruta para la obtención de tareas de un equipo
 async def get_tasks_messages(
     user_to_delete: team_models.TeamLeader = Depends(),

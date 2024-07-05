@@ -101,12 +101,14 @@ CREATE TABLE IF NOT EXISTS chat_message(
     message_state_id INT,
     message_type_id INT,
     app_user_team_id INT NULL,
+    app_user_project_id VARCHAR(20) NULL,
     user_to_send INT NULL,
 
     FOREIGN KEY (sent_by) REFERENCES app_user(app_user_id),
     FOREIGN KEY (message_state_id) REFERENCES message_state(message_state_id),
     FOREIGN KEY (message_type_id) REFERENCES message_type(message_type_id),
     FOREIGN KEY (app_user_team_id) REFERENCES app_user_team(app_user_team_id),
+    FOREIGN KEY (app_user_project_id) REFERENCES project(project_id),
     FOREIGN KEY (user_to_send) REFERENCES app_user(app_user_id)
 );
 

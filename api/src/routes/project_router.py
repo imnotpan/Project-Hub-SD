@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
+from src.services import message_services
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
 import src.models.project_models as project_models
@@ -30,6 +31,17 @@ async def create_project(
         project_id["project_id"], user_data["app_user_id"], 2
     )
     
+@project_router.get("/get/messages/", tags=["project"]) # Ruta para la obtención de mensajes de un equipo
+async def get_team_messages(
+    project_key : project_models.ProjectKeyModel = Depends(),
+    user=Depends(auth_services.get_user_current),
+):
+    project = await project_services.get_project_current(project_key.project_auth_key)
+    messages = await message_services.get_project_messages(project["project_id"])
+    return messages
+
+
+
 @project_router.post("/add/owner", tags=["project"])
 async def add_owner(
     add_owner: project_models.ProjectOwnerModel = Depends(),
@@ -40,7 +52,10 @@ async def add_owner(
     if not isOwner:
         return {401, f"You aren't leader or owner"}
     user_data = await auth_services.get_user_by_email(add_owner.user_email)
-    return await project_services.add_co_owners(project["project_id"], user_data['app_user_id'])
+    if user_data:
+        return await project_services.add_co_owners(project["project_id"], user_data['app_user_id'])
+    else:
+        return {401, f"Email not exists"}
 
 @project_router.delete("/delete/owner", tags=["project"])
 async def delete_owner(

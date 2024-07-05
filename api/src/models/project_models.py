@@ -16,3 +16,6 @@ class ProjectOwnerModel(BaseModel):
     project_auth_key: str
     user_email: str
     
+class ProjectKeyModel(BaseModel):
+    project_auth_key: str
+    

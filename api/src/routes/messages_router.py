@@ -16,5 +16,5 @@ async def send_message( message: message_models.MessageContent = Depends(), user
 async def send_message( message: message_models.GeneralMessageContent = Depends(), user = Depends(auth_services.get_user_current)):
     project = await project_services.get_project_current(message.project_auth_key)
     print(project)
-    await message_services.save_in_db_team_message_general(message, user)
+    await message_services.save_in_db_team_message_general(message, user, project['project_id'])
     return await message_services.send_message_general_to_queue(message, user, project)

@@ -52,11 +52,11 @@ async def save_in_db_team_message(message, user):
         cursor.execute(message_in_db, message_in_db_query_parameters)
         db.conn.commit()
 
-async def save_in_db_team_message_general(message, user):
+async def save_in_db_team_message_general(message, user, project_id):
     cursor = db.conn.cursor()
     message_in_db = f"""
-        INSERT INTO chat_message (message_date, message_content, sent_by, message_state_id, message_type_id)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO chat_message (message_date, message_content, sent_by, message_state_id, message_type_id, app_user_project_id)
+        VALUES (%s, %s, %s, %s, %s, %s);
     """
     message_in_db_query_parameters = ( 
                             datetime.now(),
@@ -64,6 +64,7 @@ async def save_in_db_team_message_general(message, user):
                             user['app_user_id'],
                             2,
                             1,
+                            project_id
                             )
     cursor.execute(message_in_db,message_in_db_query_parameters)
     db.conn.commit()
@@ -76,7 +77,7 @@ async def get_team_messages(team_id): # Obtiene los mensajes de un equipo
         FROM chat_message cm
         JOIN app_user_team aut ON cm.app_user_team_id = aut.app_user_team_id
         JOIN app_user au ON au.app_user_id = aut.app_user_id  
-        WHERE aut.team_id = {team_id}
+        WHERE aut.team_id = {team_id} AND message_type_id = 3
         ORDER BY cm.message_id desc 
         LIMIT 10;
     """
@@ -91,3 +92,25 @@ async def get_team_messages(team_id): # Obtiene los mensajes de un equipo
         team_messages_dict.append(message_dict)
     
     return team_messages_dict
+
+async def get_project_messages(project_id):
+    cursor = db.conn.cursor()
+    get_project_messages_query = f"""
+        SELECT cm.message_id, cm.message_date, cm.message_content, au.app_user_id, au.app_user_name, au.app_user_email 
+        FROM chat_message cm
+        JOIN app_user au ON au.app_user_id = cm.sent_by
+        WHERE cm.message_type_id = 1 AND app_user_project_id = '{project_id}'
+        ORDER BY cm.message_id DESC 
+        LIMIT 10;
+    """
+    
+    cursor.execute(get_project_messages_query, )
+    project_messages = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+   
+    project_messages_dict = []
+    for messages in project_messages:
+        message_dict = dict(zip(column_names, messages))
+        project_messages_dict.append(message_dict)
+    
+    return project_messages_dict

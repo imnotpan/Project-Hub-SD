@@ -129,7 +129,7 @@ async def join_team(user_id, team_id): # Une un usuario a un equipo
             VALUES (%s, %s, %s, %s)
             RETURNING user_status, user_type;
         """
-        insert_user_query_parameters = (team_id, user_id, "active", 0)
+        insert_user_query_parameters = (team_id, user_id, "active", 1)
         cursor.execute(insert_user_query, insert_user_query_parameters)
         task_info = cursor.fetchone()
         column_names = [desc[0] for desc in cursor.description]
