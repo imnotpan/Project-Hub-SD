@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
+import src.services.log_services as log_services
 from fastapi import APIRouter, Depends
 import src.models.team_models as team_models
 import src.services.auth_services as auth_services
@@ -17,6 +18,8 @@ async def join_to_team(
     user=Depends(auth_services.get_user_current),
     team_data: team_models.TeamJoinModel = Depends(),
 ):
+    await log_services.add_log(f"Start connect to team {team_data.team_id}", 1, 2, user['app_user_id'] )
+    
     project = await project_services.get_project_current(team_data.project_auth_key)
     team = await team_services.verify_team_in_project(
         team_data.team_id, project["project_id"]
@@ -27,9 +30,11 @@ async def join_to_team(
         )
 
     _data = await team_services.join_team(user["app_user_id"], team_data.team_id)
-    return await team_services.send_user_status(
+    response = await team_services.send_user_status(
         user, team_data.team_id, project["project_id"], "connected", _data['user_type']
     )
+    await log_services.add_log(f"End connect to team {team_data.team_id}", 2,2, user['app_user_id'] )
+    return response 
 
 
 @team_router.post("/disconnect", tags=["team"]) # Ruta para desconectarse de un equipo
@@ -37,11 +42,15 @@ async def disconnect_from_team(
     user=Depends(auth_services.get_user_current),
     team_data: team_models.TeamJoinModel = Depends(),
 ):
+    await log_services.add_log(f"Start disconnect team {team_data.team_id}", 1, 3, user['app_user_id'] )
+    
     project = await project_services.get_project_current(team_data.project_auth_key)
     _data =  await team_services.disconnect_team(user["app_user_id"], team_data.team_id)
-    return await team_services.send_user_status(
+    response = await team_services.send_user_status(
         user, team_data.team_id, project["project_id"], "disconnected", _data['user_type']
     )
+    await log_services.add_log(f"End Disconnect {team_data.team_id}", 2, 3, user['app_user_id'] )
+    return response
 
 
 @team_router.post("/create", tags=["team"]) # Ruta para el registro de equipos
@@ -49,12 +58,16 @@ async def create_team(
     user=Depends(auth_services.get_user_current),
     team_data: team_models.TeamRegisterModel = Depends(),
 ):
+    await log_services.add_log(f"Start create team", 1, 12, user['app_user_id'] )
+    
     project = await project_services.get_project_current(team_data.project_auth_key)
     isOwner = await project_services.project_owner_verify(project['project_id'],user['app_user_id'])
     if not isOwner:
         return {401, f"You can't create teams"}
     team_id = await team_services.create_team(team_data, project["project_id"])
     await team_services.change_user_type(user["app_user_id"], team_id, 2)
+    await log_services.add_log(f"Team {team_id} created in project {project['project_id']}", 2, 6, user['app_user_id'] )
+    
     return {201, f"Team created in project {project['project_id']}"}
 
 

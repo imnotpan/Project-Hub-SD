@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
+import src.services.log_services as log_services
+
 from src.services import message_services
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -26,10 +28,14 @@ async def create_project(
     project_data: project_models.ProjectRegisterModel = Depends(),
     user_data=Depends(auth_services.get_user_current),
 ):
+    await log_services.add_log(f"Start created project", 1, 11, user_data['app_user_id'] )
+    
     project_id = await project_services.create_project(project_data, user_data)
-    return await project_services.set_profile_in_project(
+    response = await project_services.set_profile_in_project(
         project_id["project_id"], user_data["app_user_id"], 2
     )
+    await log_services.add_log(f"Project created {project_id['project_id']}", 2, 11, user_data['app_user_id'] )
+    return response
     
 @project_router.get("/get/messages/", tags=["project"]) # Ruta para la obtención de mensajes de un equipo
 async def get_team_messages(
@@ -47,15 +53,22 @@ async def add_owner(
     add_owner: project_models.ProjectOwnerModel = Depends(),
     user_data=Depends(auth_services.get_user_current),
 ):
+    await log_services.add_log(f"Start add owner", 1, 7, user_data['app_user_id'] )
     project = await project_services.get_project_current(add_owner.project_auth_key)
     isOwner = await project_services.project_owner_verify(project['project_id'],user_data['app_user_id'])
     if not isOwner:
+        await log_services.add_log(f"Error add owner, user isn't owner", 3, 7, user_data['app_user_id'] )
         return {401, f"You aren't leader or owner"}
+    
     user_data = await auth_services.get_user_by_email(add_owner.user_email)
     if user_data:
-        return await project_services.add_co_owners(project["project_id"], user_data['app_user_id'])
+        response = await project_services.add_co_owners(project["project_id"], user_data['app_user_id'])
+        await log_services.add_log(f"owner added", 2, 7, user_data['app_user_id'] )
+        return response
     else:
+        await log_services.add_log(f"Error add owner, Email not exists", 3, 7, user_data['app_user_id'] )
         return {401, f"Email not exists"}
+
 
 @project_router.delete("/delete/owner", tags=["project"])
 async def delete_owner(

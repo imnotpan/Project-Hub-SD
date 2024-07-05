@@ -24,7 +24,8 @@ async def register_user(user_data): # Registra un usuario en la base de datos
     if not find_user:
         user_query = f"""
             INSERT INTO app_user (app_user_name, app_user_email, app_user_password, app_user_create_date)
-            VALUES (%s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s)
+            RETURNING app_user_id;
         """
         user_query_parameters = (user_data.user_name,
                             user_data.user_email,
@@ -32,6 +33,9 @@ async def register_user(user_data): # Registra un usuario en la base de datos
                             datetime.now().date())
         cursor.execute(user_query,user_query_parameters)
         db.conn.commit()
+        new_user_id = cursor.fetchone()[0]  # Obtener el ID del usuario insertado
+        cursor.close()
+        return new_user_id
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

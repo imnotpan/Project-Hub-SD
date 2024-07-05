@@ -35,6 +35,7 @@ async def save_in_db_team_message(message, user):
     cursor.execute(check_user_query, check_user_query_parameters)
     user_team_id = cursor.fetchone()[0]
 
+
     if user_team_id is not None:    
         message_in_db = """
             INSERT INTO chat_message (message_date, message_content, sent_by, message_state_id, message_type_id, app_user_team_id)

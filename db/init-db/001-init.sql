@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS chat_message(
     app_user_team_id INT NULL,
     app_user_project_id VARCHAR(20) NULL,
     user_to_send INT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (sent_by) REFERENCES app_user(app_user_id),
     FOREIGN KEY (message_state_id) REFERENCES message_state(message_state_id),
@@ -128,19 +129,52 @@ CREATE TABLE IF NOT EXISTS task(
 
 
 CREATE TABLE IF NOT EXISTS log_action(
-    action_id SERIAL PRIMARY KEY,
+    action_id INT PRIMARY KEY,
     action_description VARCHAR(255)
 );
 
+INSERT INTO log_action(action_id, action_description)
+VALUES
+    (1, 'Register User'),
+    (2, 'Login User'),
+    (3, 'Disconnect User'),
+    (4, 'Create Project'),
+    (5, 'Auth Project'),
+    (6, 'Create Team'),
+    (7, 'Add Owner'),
+    (8, 'Add Leader'),
+    (9, 'Auth Team'),
+    (10,'General Message'),
+    (11,'Team Message'),
+    (12, 'Add Todo'),
+    (13, 'Update Todo'),
+    (14, 'Delete Todo');
+
+
+CREATE TABLE IF NOT EXISTS log_state(
+    state_id INT PRIMARY KEY,
+    state_description VARCHAR(255)
+);
+
+INSERT INTO log_state(state_id, state_description)
+VALUES
+    (1, 'initialize'),
+    (2, 'completed'),
+    (3, 'error');
+
+
+
 CREATE TABLE IF NOT EXISTS log(
     log_id SERIAL PRIMARY KEY,
-    log_creation_date DATE,
+    log_creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     log_detail VARCHAR(255),
-
-    app_user_id INT,
+    log_state INT,
+    app_user_id INT NULL,
     action_id INT,
-
+    FOREIGN KEY (log_state) REFERENCES log_state(state_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id),
     FOREIGN KEY (action_id) REFERENCES log_action(action_id)
 );
+
+
 
