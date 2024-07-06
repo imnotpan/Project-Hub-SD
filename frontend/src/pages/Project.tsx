@@ -50,7 +50,7 @@ const Project: React.FC = () => {
 		)
 	}
 
-	const [receivedMessages, setReceivedMessages] = useState<UserMessageProps[]>(
+	/* 	const [receivedMessages, setReceivedMessages] = useState<UserMessageProps[]>(
 		[]
 	)
 
@@ -67,7 +67,7 @@ const Project: React.FC = () => {
 	useEffect(() => {
 		subscribeToUserMessages(onMessageReceived, 'general')
 		return () => unsubscribeFromUserMessages('general')
-	}, [])
+	}, []) */
 
 	return (
 		<div
