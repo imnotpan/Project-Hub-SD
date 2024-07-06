@@ -3,7 +3,7 @@ import Close from '../../assets/Close'
 import { getUserSession } from '../../services/login'
 import { projectAuthStore } from '../../authStore'
 import { toast } from 'sonner'
-import { apiSendData } from '../../services/apiService'
+import { apiDeleteData, apiSendData } from '../../services/apiService'
 
 const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 	onClose,
@@ -11,7 +11,6 @@ const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 	const { access_token } = getUserSession()
 	const { token_project } = projectAuthStore.getState()
 	const [userData, setUserData] = useState({
-		team_id: '',
 		email: '',
 	})
 	const [closeButtonHovered, setCloseButtonHovered] = useState(false)
@@ -29,17 +28,13 @@ const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 		//fetch hacer admin
 		e.preventDefault()
 
-		fetchPermission('add', 'asignado')
-	}
-
-	const fetchPermission = async (type: string, text: string) => {
-		if (!userData.email || !userData.team_id) {
+		if (!userData.email) {
 			toast.warning('Por favor, completa todos los campos.')
 			return
 		}
 
 		try {
-			const route = `/team/${userData.team_id}/${type}/leader?project_auth_key=${token_project}&user_email=${userData.email}`
+			const route = `/project/add/owner?project_auth_key=${token_project}&user_email=${userData.email}`
 			const header = {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${access_token}`,
@@ -47,9 +42,9 @@ const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 			const response = await apiSendData(route, header)
 
 			if (response.ok) {
-				toast.success(`Permiso ${text} exitosamente.`)
+				toast.success(`Permiso asignado exitosamente.`)
 			} else {
-				toast.error(`Error al ${text} permiso.`)
+				toast.error(`Error al asignar permiso.`)
 			}
 		} catch {
 			toast.warning(
@@ -63,7 +58,29 @@ const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 	) => {
 		//fetch quitar admin
 		e.preventDefault()
-		fetchPermission('delete', 'eliminado')
+		if (!userData.email) {
+			toast.warning('Por favor, completa todos los campos.')
+			return
+		}
+
+		try {
+			const route = `/project/delete/owner?project_auth_key=${token_project}&user_email=${userData.email}`
+			const header = {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${access_token}`,
+			}
+			const response = await apiDeleteData(route, header)
+
+			if (response.ok) {
+				toast.success(`Permiso elimiado exitosamente.`)
+			} else {
+				toast.error(`Error al eliminar permiso.`)
+			}
+		} catch {
+			toast.warning(
+				'Error de red. Por favor, revisa tu conexión e intenta de nuevo.'
+			)
+		}
 	}
 	return (
 		<div
@@ -97,17 +114,6 @@ const GivePermissionsPopup: React.FC<{ onClose: () => void }> = ({
 				</div>
 				<div className="text-center mb-1">
 					<h2 className="font-inter fs-3">Rol a usuario</h2>
-				</div>
-
-				<div className="mb-3">
-					<input
-						placeholder="Team ID"
-						style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
-						type="text"
-						name="team_id"
-						onChange={handleDataChange}
-						className="form-control"
-					/>
 				</div>
 				<div className="mb-3">
 					<input

@@ -10,31 +10,49 @@ import { toast } from 'sonner'
 import { MessageProps } from '../types/types'
 
 export const subscribeToUserMessages = (
-	onMessageReceived: (body: string) => void
+	onMessageReceived: (body: string) => void,
+	type: string
 ) => {
 	const { team_id } = teamAuthStore.getState()
+	const { project_id } = projectAuthStore.getState()
 
-	rabbitSubscribeChannel('users_team_' + team_id, onMessageReceived)
-}
+	const brokerChannel =
+		type === 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
 
-export const unsubscribeFromUserMessages = () => {
-	const { team_id } = teamAuthStore.getState()
-
-	if (client && client.connected) {
-		rabbitUnsubscribeChannel('users_team_' + team_id)
+	if (client.connected) {
+		rabbitSubscribeChannel(brokerChannel, onMessageReceived)
+	} else {
+		client.onConnect = () => {
+			rabbitSubscribeChannel(brokerChannel, onMessageReceived)
+		}
 	}
 }
 
+export const unsubscribeFromUserMessages = (type: string) => {
+	const { team_id } = teamAuthStore.getState()
+	const { project_id } = projectAuthStore.getState()
+
+	const brokerChannel =
+		type === 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
+
+	rabbitUnsubscribeChannel(brokerChannel)
+}
+
 export const fetchMessages = async (
-	setMessages: (data: MessageProps[]) => void
+	setMessages: (data: MessageProps[]) => void,
+	type: string
 ) => {
-	// Función para obtener los mensajes del equipo desde la base de datos
 	const { access_token } = getUserSession()
 	const { team_id } = teamAuthStore.getState()
 	const { token_project } = projectAuthStore.getState()
 
 	try {
-		const route = `/team/${team_id}/messages?project_auth_key=${token_project}`
+		let route = ''
+		if (type === 'general') {
+			route = `/project/get/messages?project_auth_key=${token_project}`
+		} else {
+			route = `/team/${team_id}/messages?project_auth_key=${token_project}`
+		}
 
 		const header = {
 			Authorization: `Bearer ${access_token}`,
@@ -60,15 +78,20 @@ export const fetchMessages = async (
 
 export const createNewMessage = async (
 	message: string,
-	setMessage: (text: string) => void
+	setMessage: (text: string) => void,
+	type: string
 ) => {
-	// Función para crear un nuevo mensaje y enviarlo al backend
 	const { access_token } = getUserSession()
 	const { team_id } = teamAuthStore.getState()
 	const { token_project } = projectAuthStore.getState()
 
 	try {
-		const route = `/message/send/team?project_auth_key=${token_project}&team_id=${team_id}&message_content=${message}`
+		let route = ''
+		if (type === 'general') {
+			route = `/message/send/general?project_auth_key=${token_project}&message_content=${message}`
+		} else {
+			route = `/message/send/team?project_auth_key=${token_project}&team_id=${team_id}&message_content=${message}`
+		}
 		const header = {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${access_token}`,

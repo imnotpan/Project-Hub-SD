@@ -41,10 +41,10 @@ const TeamsPage: React.FC = () => {
 	useEffect(() => {
 		// Obtiene los usuarios del equipo y se suscribe al canal de mensajes
 		fetchTeamUsers(setSessionUsers)
-		subscribeToUserMessages(onMessageReceived)
+		subscribeToUserMessages(onMessageReceived, 'team')
 
 		return () => {
-			unsubscribeFromUserMessages()
+			unsubscribeFromUserMessages('team')
 		}
 	}, [])
 	return (
@@ -104,7 +104,7 @@ const TeamsPage: React.FC = () => {
 					<ToDoContainer />
 				</div>
 				<div className="p-2 " style={{ flex: '1' }}>
-					<Chat />
+					<Chat type="team" />
 				</div>
 			</div>
 		</div>

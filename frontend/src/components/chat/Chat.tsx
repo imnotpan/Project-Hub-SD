@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { toast, Toaster } from 'sonner'
-import { teamAuthStore } from '../../authStore'
+import { projectAuthStore, teamAuthStore } from '../../authStore'
 import Send from '../../assets/Send'
 import {
 	rabbitSubscribeChannel,
@@ -11,12 +11,13 @@ import { MessageProps } from '../../types/types'
 import MessageList from './MessageList'
 import { createNewMessage, fetchMessages } from '../../services/messages'
 
-const Chat: React.FC = () => {
+const Chat: React.FC<{ type: string }> = ({ type }) => {
 	// Componente para el chat
 	const [messages, setMessages] = useState<MessageProps[]>([])
 	const [hover, setHover] = useState(false)
 	const [message, setMessage] = useState('')
 	const { team_id } = teamAuthStore.getState()
+	const { project_id } = projectAuthStore.getState()
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		// Envía el mensaje al backend
@@ -26,7 +27,7 @@ const Chat: React.FC = () => {
 			return
 		}
 		e.currentTarget.reset()
-		createNewMessage(message, setMessage)
+		createNewMessage(message, setMessage, type)
 	}
 
 	const handleMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,9 +50,15 @@ const Chat: React.FC = () => {
 
 	useEffect(() => {
 		//  Obtiene los mensajes del equipo y suscribe al canal de mensajes del equipo
-		fetchMessages(setMessages)
-		const channel = 'messages_team_' + team_id
-		rabbitSubscribeChannel(channel, onMessageReceived)
+		fetchMessages(setMessages, type)
+		let channel = ''
+		if (type === 'general') {
+			channel = 'messages_general_' + project_id
+			rabbitSubscribeChannel(channel, onMessageReceived)
+		} else {
+			channel = 'messages_team_' + team_id
+			rabbitSubscribeChannel(channel, onMessageReceived)
+		}
 
 		return () => {
 			if (client && client.connected) {

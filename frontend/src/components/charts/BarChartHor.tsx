@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react'
 import {
 	Chart,
-	ArcElement,
+	BarElement,
 	Title,
 	Tooltip,
 	Legend,
-	DoughnutController,
+	BarController,
 } from 'chart.js'
 
-Chart.register(ArcElement, Title, Tooltip, Legend, DoughnutController)
+Chart.register(BarElement, Title, Tooltip, Legend, BarController)
 
 interface Team {
 	nombre_team: string
@@ -19,11 +19,11 @@ interface Team {
 	tareas_sin_asignar_team?: number
 }
 
-interface DonutChartProps {
+interface BarChartProps {
 	data: Team[]
 }
 
-const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
+const BarChartHor: React.FC<BarChartProps> = ({ data }) => {
 	const chartRef = useRef<HTMLCanvasElement>(null)
 
 	useEffect(() => {
@@ -48,17 +48,18 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 					0
 				)
 
-				const donutChart = new Chart(context, {
-					type: 'doughnut',
+				const barChart = new Chart(context, {
+					type: 'bar',
 					data: {
 						labels: [
 							'Tareas Terminadas',
 							'Tareas En Proceso',
-							'Tareas Sin iniciar',
+							'Tareas Sin Iniciar',
 							'Tareas Sin Asignar',
 						],
 						datasets: [
 							{
+								label: 'Total Tareas Terminadas',
 								data: [
 									totalFinalizadas,
 									totalPendientes,
@@ -66,11 +67,11 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 									totalSinAsignar,
 								],
 								backgroundColor: ['#4CD964', '#F3D32F', '#FF5F56', '#BBB'],
-								borderWidth: 1,
 							},
 						],
 					},
 					options: {
+						indexAxis: 'y',
 						plugins: {
 							legend: { display: true, position: 'top' },
 							title: {
@@ -86,7 +87,7 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 				})
 
 				return () => {
-					donutChart.destroy()
+					barChart.destroy()
 				}
 			}
 		}
@@ -95,4 +96,4 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 	return <canvas ref={chartRef} />
 }
 
-export default DonutChart
+export default BarChartHor

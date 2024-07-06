@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { fetchCreateProject, fetchJoinProject } from '../../services/project'
+
 // Componente para crear un proyecto
 const CreateProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
 	const [idProject, setIdProject] = useState('')
+
 	const navigate = useNavigate()
 	const [createProjectData, setCreateProjectData] = useState({
 		project_name: '',

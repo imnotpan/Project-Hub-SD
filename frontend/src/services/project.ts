@@ -12,6 +12,7 @@ export const fetchCreateProject = async (
 ) => {
 	const { setProjectName } = projectAuthStore.getState() // Obtén el método setProjectName del store
 	const { access_token } = getUserSession()
+	const { setProjectId } = projectAuthStore.getState()
 
 	if (!project_name || !project_password || !project_description) {
 		toast.warning('Por favor, completa todos los campos.')
@@ -29,8 +30,10 @@ export const fetchCreateProject = async (
 		const data = await response.json()
 		if (response.ok) {
 			// Si la respuesta es exitosa, almacena el id del proyecto
+
 			setIdProject(data.project_id)
 			setProjectName(project_name)
+			setProjectId(data.project_id)
 		} else {
 			toast.error('Error al crear el proyecto. Por favor, intenta de nuevo.')
 		}
@@ -62,7 +65,6 @@ export const fetchJoinProject = async (
 			setToken(data.access_token)
 			setOwner(data.owner)
 			setProjectName(data.project_name)
-			toast.success('Credenciales exitosas!.')
 			setTimeout(() => {
 				navigate('/projects')
 			}, 500)

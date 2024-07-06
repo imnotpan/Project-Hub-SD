@@ -3,6 +3,7 @@ import Back from '../../assets/Back'
 import { useNavigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { fetchJoinProject } from '../../services/project'
+import { projectAuthStore } from '../../authStore'
 
 const JoinProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
 	const navigate = useNavigate()
@@ -10,6 +11,8 @@ const JoinProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
 		project_id: '',
 		project_password: '',
 	})
+
+	const { setProjectId } = projectAuthStore()
 
 	const handleJoinProjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setJoinProjectData({
@@ -26,6 +29,7 @@ const JoinProject: React.FC<{ onReturn: () => void }> = ({ onReturn }) => {
 			joinProjectData.project_password,
 			navigate
 		)
+		setProjectId(joinProjectData.project_id)
 	}
 
 	return (

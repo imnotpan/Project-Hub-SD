@@ -5,11 +5,15 @@ import ChartsContainer from '../components/charts/ChartsContainer'
 import Back from '../assets/Back'
 import { useNavigate } from 'react-router-dom'
 import { projectAuthStore } from '../authStore'
-import { TeamsProps } from '../types/types'
+import { TeamsProps, UserMessageProps } from '../types/types'
 import { createTeam, fetchTeams } from '../services/team'
 import { getUserSession } from '../services/login'
 import CreateTeamPopup from '../components/team/CreateTeamPopup'
 import GivePermissionsPopup from '../components/project/GivePermissionsPopup'
+import {
+	subscribeToUserMessages,
+	unsubscribeFromUserMessages,
+} from '../services/messages'
 
 const Project: React.FC = () => {
 	const [dataTeams, setDataTeams] = useState<TeamsProps[]>([])
@@ -18,6 +22,8 @@ const Project: React.FC = () => {
 	const { token_project, project_name, owner } = projectAuthStore.getState()
 	const { access_token } = getUserSession()
 	const navigate = useNavigate()
+
+	const [sessionUsers, setSessionUsers] = useState<UserMessageProps[]>([])
 
 	const [newTeamData, setNewTeamData] = useState({
 		team_name: '',
@@ -32,7 +38,7 @@ const Project: React.FC = () => {
 		}
 
 		setTeamsList()
-	}, [])
+	}, [token_project])
 
 	const createNewTeam = (e: React.FormEvent) => {
 		e.preventDefault()
@@ -45,6 +51,29 @@ const Project: React.FC = () => {
 			setShowCreateTeamPopup
 		)
 	}
+
+	const onMessageReceived = async (body: string) => {
+		const messageObject = JSON.parse(body)
+		const newUser: UserMessageProps = {
+			app_user_name: messageObject.app_user_name,
+			app_user_email: messageObject.app_user_email,
+			app_user_id: messageObject.app_user_id,
+			user_status: messageObject.user_status,
+		}
+
+		if (newUser.user_status === 'connected') {
+			setSessionUsers((prevUsers) => [...prevUsers, newUser])
+		} else if (newUser.user_status === 'disconnected') {
+			setSessionUsers((prevUsers) =>
+				prevUsers.filter((user) => user.app_user_id !== newUser.app_user_id)
+			)
+		}
+	}
+
+	useEffect(() => {
+		subscribeToUserMessages(onMessageReceived, 'general')
+		return () => unsubscribeFromUserMessages('general')
+	}, [])
 
 	return (
 		<div
@@ -133,7 +162,7 @@ const Project: React.FC = () => {
 					<ChartsContainer />
 				</div>
 				<div className="p-2  " style={{ flex: '1' }}>
-					<Chat />
+					<Chat type="general" />
 				</div>
 			</div>
 		</div>

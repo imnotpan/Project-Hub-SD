@@ -13,9 +13,11 @@ export const userAuthStore = create<AuthState>((set) => ({
 type ProjectState = {
 	project_name: string
 	token_project: string
+	project_id: string
 	state: boolean
 	owner: boolean | null
 	setProjectName: (project_name: string) => void
+	setProjectId: (project_id: string) => void
 	setOwner: (owner: boolean) => void
 	setToken: (token_project: string) => void
 	setState: (state: boolean) => void
@@ -24,10 +26,12 @@ type ProjectState = {
 export const projectAuthStore = create<ProjectState>((set) => ({
 	project_name: '',
 	token_project: '',
+	project_id: '',
 	state: false,
 	owner: null,
 	setProjectName: (project_name) => set({ project_name }),
 	setOwner: (owner) => set({ owner }),
+	setProjectId: (project_id) => set({ project_id }),
 	setToken: (token_project) => set({ token_project }),
 	setState: (state) => set({ state }),
 }))
