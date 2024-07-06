@@ -17,8 +17,10 @@ async def get_project_general_metrics(project_id):
             t.team_name,
             COUNT(DISTINCT aut.app_user_id) AS number_of_people,
             COUNT(DISTINCT ta.task_id) AS total_tasks,
-            COUNT(CASE WHEN ta.task_state = 'completed' THEN 1 END) AS completed_tasks,
-            COUNT(CASE WHEN ta.task_state = 'pending' THEN 1 END) AS pending_tasks
+            COUNT(CASE WHEN ta.task_state = 'Completed' THEN 1 END) AS completed_tasks,
+            COUNT(CASE WHEN ta.task_state = 'Unassigned' THEN 1 END) AS unassigned_tasks,
+            COUNT(CASE WHEN ta.task_state = 'Not started' THEN 1 END) AS no_started_tasks,
+            COUNT(CASE WHEN ta.task_state = 'In process' THEN 1 END) AS in_process_tasks
         FROM
             project p
             JOIN team t ON p.project_id = t.project_id
