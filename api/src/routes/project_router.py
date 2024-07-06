@@ -9,6 +9,7 @@ import src.models.project_models as project_models
 import src.models.auth_models as auth_models
 import src.services.auth_services as auth_services
 import src.services.project_services as project_services
+import src.services.metrics_services as metric_services
 
 project_router = APIRouter()
 
@@ -46,7 +47,13 @@ async def get_team_messages(
     messages = await message_services.get_project_messages(project["project_id"])
     return messages
 
-
+@project_router.get("/metrics/", tags=["project"]) # Ruta para la obtención de mensajes de un equipo
+async def get_team_messages(
+    project_key : project_models.ProjectKeyModel = Depends(),
+    user=Depends(auth_services.get_user_current),
+):
+    project = await project_services.get_project_current(project_key.project_auth_key)
+    return await metric_services.get_project_general_metrics(project["project_id"])
 
 @project_router.post("/add/owner", tags=["project"])
 async def add_owner(
