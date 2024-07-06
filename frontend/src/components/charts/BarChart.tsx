@@ -21,11 +21,14 @@ Chart.register(
 )
 
 interface Team {
-	nombre_team: string
-	tamaño_team: number
-	tareas_finalizadas_team: number
-	tareas_pendientes: number
-	tareas_activas_team: number
+	completed_tasks: number
+	in_process_tasks: number
+	no_started_tasks: number
+	unassigned_tasks: number
+	number_of_people: number
+	team_id: number
+	team_name: string
+	total_tasks: number
 }
 
 interface BarStackedChartProps {
@@ -43,29 +46,29 @@ const BarChart: React.FC<BarStackedChartProps> = ({ data }) => {
 				const barChart = new Chart(context, {
 					type: 'bar',
 					data: {
-						labels: data.map((team) => team.nombre_team),
+						labels: data.map((team) => team.team_name),
 						datasets: [
 							{
 								label: 'Tareas Terminadas',
-								data: data.map((team) => team.tareas_finalizadas_team),
+								data: data.map((team) => team.completed_tasks),
 								backgroundColor: '#4CD964',
 								stack: 'Stack 0',
 							},
 							{
 								label: 'Tareas En Proceso',
-								data: data.map((team) => team.tareas_activas_team),
+								data: data.map((team) => team.in_process_tasks),
 								backgroundColor: '#F3D32F',
 								stack: 'Stack 0',
 							},
 							{
 								label: 'Tareas Sin Iniciar',
-								data: data.map((team) => team.tareas_pendientes),
+								data: data.map((team) => team.no_started_tasks),
 								backgroundColor: '#FF5F56',
 								stack: 'Stack 0',
 							},
 							{
 								label: 'Tareas Sin Asignar',
-								data: data.map((team) => team.tareas_activas_team),
+								data: data.map((team) => team.unassigned_tasks),
 								backgroundColor: '#BBB',
 								stack: 'Stack 0',
 							},

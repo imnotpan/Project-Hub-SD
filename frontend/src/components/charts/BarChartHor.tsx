@@ -11,12 +11,14 @@ import {
 Chart.register(BarElement, Title, Tooltip, Legend, BarController)
 
 interface Team {
-	nombre_team: string
-	tamaño_team: number
-	tareas_finalizadas_team: number
-	tareas_pendientes: number
-	tareas_activas_team: number
-	tareas_sin_asignar_team?: number
+	completed_tasks: number
+	in_process_tasks: number
+	no_started_tasks: number
+	unassigned_tasks: number
+	number_of_people: number
+	team_id: number
+	team_name: string
+	total_tasks: number
 }
 
 interface BarChartProps {
@@ -32,19 +34,19 @@ const BarChartHor: React.FC<BarChartProps> = ({ data }) => {
 
 			if (context) {
 				const totalFinalizadas = data.reduce(
-					(sum, team) => sum + team.tareas_finalizadas_team,
+					(sum, team) => sum + team.completed_tasks,
 					0
 				)
 				const totalPendientes = data.reduce(
-					(sum, team) => sum + team.tareas_pendientes,
+					(sum, team) => sum + team.in_process_tasks,
 					0
 				)
 				const totalActivas = data.reduce(
-					(sum, team) => sum + team.tareas_activas_team,
+					(sum, team) => sum + team.no_started_tasks,
 					0
 				)
 				const totalSinAsignar = data.reduce(
-					(sum, team) => sum + (team.tareas_sin_asignar_team || 0),
+					(sum, team) => sum + team.unassigned_tasks,
 					0
 				)
 

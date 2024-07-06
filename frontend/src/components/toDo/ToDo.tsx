@@ -26,7 +26,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 
 	const { access_token } = getUserSession()
 	const { token_project } = projectAuthStore.getState()
-	const teamId = teamAuthStore.getState().team_id
+	const { team_id } = teamAuthStore.getState()
 
 	useEffect(() => {
 		if (tasks) {
@@ -44,12 +44,12 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 			task_deadline_date: '',
 			task_difficult: 0,
 			task_state: status,
-			team_id: teamId!,
+			team_id: team_id!,
 		}
 		setTodos([...todos, newTodoItem])
 
 		try {
-			const route = `/tasks/add?project_auth_key=${token_project}&team_id=${teamId}&task_state=${status}&task_name=${''}`
+			const route = `/tasks/add?project_auth_key=${token_project}&team_id=${team_id}&task_state=${status}&task_name=${''}`
 			const header = {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${access_token}`,
@@ -71,7 +71,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 
 	const handleDeleteTodo = async (id: number) => {
 		try {
-			const route = `/tasks/delete?project_auth_key=${token_project}&task_id=${id}&team_id=${teamId}`
+			const route = `/tasks/delete?project_auth_key=${token_project}&task_id=${id}&team_id=${team_id}`
 			const headers = {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${access_token}`,
@@ -124,7 +124,7 @@ const ToDo: React.FC<ToDoProps & { refreshTasks: () => void }> = ({
 
 		if (data) {
 			try {
-				const route = `/tasks/update?project_auth_key=${token_project}&team_id=${teamId}&task_id=${data['task_id']}&task_state=${status}`
+				const route = `/tasks/update?project_auth_key=${token_project}&team_id=${team_id}&task_id=${data['task_id']}&task_state=${status}`
 
 				const header = {
 					'Content-Type': 'application/json',
