@@ -35,37 +35,50 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 		setMessage(e.target.value)
 	}
 
-	const onMessageReceived = async (body: string) => {
-		// Función que maneja cuando se recibe un mensaje
-		const messageObject = JSON.parse(body)
-		const newMessage: MessageProps = {
-			app_user_name: messageObject.user_name,
-			app_user_email: messageObject.user_email,
-			message_content: messageObject.message_text,
-			message_date: messageObject.message_date,
-			message_id: messageObject.message_id,
+	const onMessageReceived = (body: string) => {
+		try {
+			const messageObject = JSON.parse(body)
+			const newMessage: MessageProps = {
+				app_user_name: messageObject.user_name,
+				app_user_email: messageObject.user_email,
+				message_content: messageObject.message_text,
+				message_date: messageObject.message_date,
+				message_id: messageObject.message_id,
+			}
+			setMessages((prevMessages) => [...prevMessages, newMessage])
+		} catch (error) {
+			console.error('Error al procesar el mensaje recibido:', error)
 		}
-		setMessages((prevMessages) => [...prevMessages, newMessage])
 	}
 
 	useEffect(() => {
-		//  Obtiene los mensajes del equipo y suscribe al canal de mensajes del equipo
-		fetchMessages(setMessages, type)
-		let channel = ''
-		if (type === 'general') {
-			channel = 'messages_general_' + project_id
-			rabbitSubscribeChannel(channel, onMessageReceived)
-		} else {
-			channel = 'messages_team_' + team_id
-			rabbitSubscribeChannel(channel, onMessageReceived)
+		const fetchAndSubscribe = async () => {
+			try {
+				await fetchMessages(setMessages, type)
+				let channel = ''
+				if (type === 'general') {
+					channel = 'messages_general_' + project_id
+				} else {
+					channel = 'messages_team_' + team_id
+				}
+				await rabbitSubscribeChannel(channel, onMessageReceived)
+			} catch (error) {
+				console.error('Error al suscribirse al canal de RabbitMQ:', error)
+			}
 		}
+
+		fetchAndSubscribe()
 
 		return () => {
 			if (client && client.connected) {
-				rabbitUnsubscribeChannel(channel)
+				const unsubscribeChannel =
+					type === 'general'
+						? 'messages_general_' + project_id
+						: 'messages_team_' + team_id
+				rabbitUnsubscribeChannel(unsubscribeChannel)
 			}
 		}
-	}, [team_id])
+	}, [type, team_id, project_id])
 
 	return (
 		<div>

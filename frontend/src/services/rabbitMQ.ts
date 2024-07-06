@@ -35,7 +35,6 @@ const rabbitSubscribeChannel = async (
 	onMessageReceived: (message: string) => void
 ) => {
 	const uniqueId = `sub-${brokerChannel}-${user_email}` // Identificador único de la suscripción
-
 	if (!subscriptions[uniqueId]) {
 		// Si la id no se encuentra en las suscripciones, lo suscribe al canal
 		const subscription = client.subscribe(

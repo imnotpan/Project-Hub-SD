@@ -23,8 +23,6 @@ const Project: React.FC = () => {
 	const { access_token } = getUserSession()
 	const navigate = useNavigate()
 
-	const [sessionUsers, setSessionUsers] = useState<UserMessageProps[]>([])
-
 	const [newTeamData, setNewTeamData] = useState({
 		team_name: '',
 		team_description: '',
@@ -52,21 +50,17 @@ const Project: React.FC = () => {
 		)
 	}
 
-	const onMessageReceived = async (body: string) => {
-		const messageObject = JSON.parse(body)
-		const newUser: UserMessageProps = {
-			app_user_name: messageObject.app_user_name,
-			app_user_email: messageObject.app_user_email,
-			app_user_id: messageObject.app_user_id,
-			user_status: messageObject.user_status,
-		}
+	const [receivedMessages, setReceivedMessages] = useState<UserMessageProps[]>(
+		[]
+	)
 
-		if (newUser.user_status === 'connected') {
-			setSessionUsers((prevUsers) => [...prevUsers, newUser])
-		} else if (newUser.user_status === 'disconnected') {
-			setSessionUsers((prevUsers) =>
-				prevUsers.filter((user) => user.app_user_id !== newUser.app_user_id)
-			)
+	const onMessageReceived = (message: string) => {
+		try {
+			const parsedMessage: UserMessageProps = JSON.parse(message)
+			console.log('Received message:', parsedMessage)
+			setReceivedMessages((prevMessages) => [...prevMessages, parsedMessage])
+		} catch (error) {
+			console.error('Failed to parse message:', error)
 		}
 	}
 
