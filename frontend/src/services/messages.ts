@@ -17,7 +17,7 @@ export const subscribeToUserMessages = (
 	const { project_id } = projectAuthStore.getState()
 
 	const brokerChannel =
-		type === 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
+		type == 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
 
 	if (client.connected) {
 		rabbitSubscribeChannel(brokerChannel, onMessageReceived)
@@ -33,7 +33,7 @@ export const unsubscribeFromUserMessages = (type: string) => {
 	const { project_id } = projectAuthStore.getState()
 
 	const brokerChannel =
-		type === 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
+		type == 'general' ? 'users_general_' + project_id : 'users_team_' + team_id
 
 	rabbitUnsubscribeChannel(brokerChannel)
 }
@@ -76,11 +76,7 @@ export const fetchMessages = async (
 	}
 }
 
-export const createNewMessage = async (
-	message: string,
-	setMessage: (text: string) => void,
-	type: string
-) => {
+export const createNewMessage = async (message: string, type: string) => {
 	const { access_token } = getUserSession()
 	const { team_id } = teamAuthStore.getState()
 	const { token_project } = projectAuthStore.getState()
@@ -99,7 +95,6 @@ export const createNewMessage = async (
 		const response = await apiSendData(route, header)
 		if (response.ok) {
 			toast.success('Mensaje enviado correctamente.')
-			setMessage('')
 		} else {
 			toast.error('Error al enviar mensaje.')
 		}

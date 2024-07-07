@@ -24,7 +24,6 @@ const ChartsContainer: React.FC = () => {
 				if (response.ok) {
 					const data = await response.json()
 					setdataCharts(data)
-					console.log(data)
 				}
 			} catch {
 				toast.warning(

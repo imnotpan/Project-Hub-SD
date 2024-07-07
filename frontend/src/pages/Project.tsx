@@ -50,14 +50,14 @@ const Project: React.FC = () => {
 		)
 	}
 
-	/* 	const [receivedMessages, setReceivedMessages] = useState<UserMessageProps[]>(
+	const [receivedMessages, setReceivedMessages] = useState<UserMessageProps[]>(
 		[]
 	)
 
 	const onMessageReceived = (message: string) => {
 		try {
 			const parsedMessage: UserMessageProps = JSON.parse(message)
-			console.log('Received message:', parsedMessage)
+			console.log(receivedMessages)
 			setReceivedMessages((prevMessages) => [...prevMessages, parsedMessage])
 		} catch (error) {
 			console.error('Failed to parse message:', error)
@@ -67,7 +67,7 @@ const Project: React.FC = () => {
 	useEffect(() => {
 		subscribeToUserMessages(onMessageReceived, 'general')
 		return () => unsubscribeFromUserMessages('general')
-	}, []) */
+	}, [])
 
 	return (
 		<div

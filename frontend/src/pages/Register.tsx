@@ -4,7 +4,7 @@ import { Toaster } from 'sonner'
 import { registerUser } from '../services/register'
 import { RegisterProps } from '../types/types'
 
-const RegisterPage: React.FC = () => {
+const Register: React.FC = () => {
 	const navigate = useNavigate()
 
 	const [registerData, setRegisterData] = useState<RegisterProps>({
@@ -95,4 +95,4 @@ const RegisterPage: React.FC = () => {
 	)
 }
 
-export default RegisterPage
+export default Register

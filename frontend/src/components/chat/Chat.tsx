@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast, Toaster } from 'sonner'
 import { projectAuthStore, teamAuthStore } from '../../authStore'
 import Send from '../../assets/Send'
@@ -12,7 +12,6 @@ import MessageList from './MessageList'
 import { createNewMessage, fetchMessages } from '../../services/messages'
 
 const Chat: React.FC<{ type: string }> = ({ type }) => {
-	// Componente para el chat
 	const [messages, setMessages] = useState<MessageProps[]>([])
 	const [hover, setHover] = useState(false)
 	const [message, setMessage] = useState('')
@@ -20,18 +19,21 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 	const { project_id } = projectAuthStore.getState()
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		// Envía el mensaje al backend
 		e.preventDefault()
 		if (!message) {
 			toast.warning('Por favor, Escribe un mensaje.')
 			return
 		}
-		e.currentTarget.reset()
-		createNewMessage(message, setMessage, type)
+		try {
+			await createNewMessage(message, type)
+			setMessage('')
+		} catch (error) {
+			toast.error('Error al enviar el mensaje. Inténtalo de nuevo.')
+			console.error('Error al enviar el mensaje:', error)
+		}
 	}
 
 	const handleMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// Actualiza el estado del mensaje
 		setMessage(e.target.value)
 	}
 
@@ -57,7 +59,7 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 				await fetchMessages(setMessages, type)
 				let channel = ''
 				if (type === 'general') {
-					channel = 'messages_general_' + project_id
+					channel = 'messages_project_' + project_id
 				} else {
 					channel = 'messages_team_' + team_id
 				}
@@ -73,7 +75,7 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 			if (client && client.connected) {
 				const unsubscribeChannel =
 					type === 'general'
-						? 'messages_general_' + project_id
+						? 'messages_project_' + project_id
 						: 'messages_team_' + team_id
 				rabbitUnsubscribeChannel(unsubscribeChannel)
 			}
@@ -100,6 +102,7 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 					style={{ backgroundColor: '#f8f8f8', borderColor: 'white' }}
 					type="text"
 					onChange={handleMessage}
+					value={message}
 					placeholder="Ingresa tu mensaje!"
 				/>
 				<button
@@ -108,7 +111,7 @@ const Chat: React.FC<{ type: string }> = ({ type }) => {
 					onMouseOver={(e) => (
 						(e.currentTarget.style.transform = 'scale(1.1)'),
 						setHover(true),
-						(e.currentTarget.style.transform = 'scale(-1.1)')
+						(e.currentTarget.style.transform = 'scale(1)')
 					)}
 					onMouseOut={(e) => (
 						(e.currentTarget.style.transform = 'scale(1)'), setHover(false)

@@ -51,7 +51,6 @@ const rabbitSubscribeChannel = async (
 			}
 		)
 		subscriptions[uniqueId] = subscription
-		console.log('Subscribed to channel:', brokerChannel)
 	} else {
 		// Si ya está suscrito, muestra un mensaje en consola
 		console.log('Already subscribed to channel:', brokerChannel)
@@ -64,7 +63,6 @@ const rabbitUnsubscribeChannel = async (brokerChannel: string) => {
 	if (subscriptions[uniqueId]) {
 		subscriptions[uniqueId].unsubscribe()
 		delete subscriptions[uniqueId]
-		console.log('Unsubscribed from channel:', brokerChannel)
 	} else {
 		console.log(
 			'No active subscription to unsubscribe from channel:',

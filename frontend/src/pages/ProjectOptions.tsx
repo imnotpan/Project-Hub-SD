@@ -3,7 +3,7 @@ import CreateProject from '../components/project/CreateProject'
 import JoinProject from '../components/project/JoinProject'
 import { ProjectOptionsPageButtonProps } from '../types/types'
 
-const ProjectOptionsPageButton: React.FC<ProjectOptionsPageButtonProps> = ({
+const ProjectOptionsButton: React.FC<ProjectOptionsPageButtonProps> = ({
 	type,
 	onClick,
 }) => {
@@ -18,7 +18,7 @@ const ProjectOptionsPageButton: React.FC<ProjectOptionsPageButtonProps> = ({
 	)
 }
 
-const ProjectOptionsPage: React.FC = () => {
+const ProjectOptions: React.FC = () => {
 	const [showCreateProject, setShowCreateProject] = useState(false)
 	const [showJoinProject, setShowJoinProject] = useState(false)
 
@@ -56,11 +56,11 @@ const ProjectOptionsPage: React.FC = () => {
 						style={{ fontSize: '2rem' }}>
 						Seleciona una opcion
 					</h2>
-					<ProjectOptionsPageButton
+					<ProjectOptionsButton
 						type="Crear un proyecto"
 						onClick={handleCreateProjectClick}
 					/>
-					<ProjectOptionsPageButton
+					<ProjectOptionsButton
 						type="Unirse a un proyecto"
 						onClick={handleJoinProjectClick}
 					/>
@@ -70,4 +70,4 @@ const ProjectOptionsPage: React.FC = () => {
 	)
 }
 
-export default ProjectOptionsPage
+export default ProjectOptions

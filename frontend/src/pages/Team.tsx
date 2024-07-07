@@ -12,7 +12,7 @@ import {
 } from '../services/messages'
 import { fetchTeamUsers } from '../services/team'
 
-const TeamsPage: React.FC = () => {
+const Teams: React.FC = () => {
 	// Página de equipos
 	const navigate = useNavigate()
 	const [sessionUsers, setSessionUsers] = useState<UserMessageProps[]>([])
@@ -111,4 +111,4 @@ const TeamsPage: React.FC = () => {
 	)
 }
 
-export default TeamsPage
+export default Teams
