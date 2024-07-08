@@ -18,3 +18,4 @@ $$ LANGUAGE plpgsql;
 
 SELECT cron.schedule('delete_old_messages', '0 0 1 * *', 'SELECT delete_old_messages();');
 SELECT cron.schedule('delete_old_logs', '0 0 1 * *', 'SELECT delete_old_logs();');
+
